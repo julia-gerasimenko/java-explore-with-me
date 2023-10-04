@@ -7,20 +7,20 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.StatsHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.exeption.ValidationException;
-import ru.practicum.model.StatsHitMapper;
 import ru.practicum.model.StatHit;
+import ru.practicum.model.StatsHitMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class StatServiceImpl implements StatService {
 
     private final StatRepository repository;
 
+    @Transactional
     @Override
     public void saveStat(StatsHitDto dto) {
         StatHit statHit = repository.save(StatsHitMapper.statsHitDtoToStatHit(dto));
