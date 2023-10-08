@@ -40,8 +40,7 @@ public class UserAdminController {
 
     @GetMapping()
     public List<UserDto> get(@RequestParam(defaultValue = "") List<Long> ids,
-                             @RequestParam(value = "from"
-                                     , defaultValue = PAGE_DEFAULT_FROM) @PositiveOrZero Integer from,
+                             @RequestParam(value = "from", defaultValue = PAGE_DEFAULT_FROM) @PositiveOrZero Integer from,
                              @RequestParam(value = "size", defaultValue = PAGE_DEFAULT_SIZE) @Positive Integer size) {
         return userService.getUsers(ids, from, size);
     }
