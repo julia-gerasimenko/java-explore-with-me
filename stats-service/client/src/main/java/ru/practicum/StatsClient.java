@@ -36,7 +36,7 @@ public class StatsClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .toEntityList(ViewStatsDto.class)
-                .doOnNext(c -> log.info("Get stats with param: start date {}, end date {}, uris {}, unique {}",
+                .doOnNext(c -> log.info("Получена статистика с параметрами: дата начала {}, дата окончания {}, uris {}, unique {}",
                         start, end, uris, unique))
                 .block();
     }
@@ -49,7 +49,7 @@ public class StatsClient {
                 .bodyValue(new StatsHitDto(app, uri, ip, timestamp))
                 .retrieve()
                 .toBodilessEntity()
-                .doOnNext(c -> log.info("Save stats"))
+                .doOnNext(c -> log.info("Статистика сохранена"))
                 .block();
     }
 }

@@ -24,30 +24,30 @@ public class StatServiceImpl implements StatService {
     @Override
     public void saveStat(StatsHitDto dto) {
         StatHit statHit = repository.save(StatsHitMapper.statsHitDtoToStatHit(dto));
-        log.info("Save stat {}", statHit);
+        log.info("Сохранена статистика {}", statHit);
     }
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (start.isAfter(end)) {
-            log.info("End time can't be before start time");
-            throw new ValidationException("End time can't be before start time");
+            log.info("Дата окончания не моет быть раньше даты начала");
+            throw new ValidationException("Дата окончания не моет быть раньше даты начала");
         }
 
         if (uris.isEmpty()) {
             if (unique) {
-                log.info("Get all stats with isUnique {} ", unique);
+                log.info("Получена статистика, где isUnique {} ", unique);
                 return repository.getStatsByUniqueIp(start, end);
             } else {
-                log.info("Get all stats with isUnique {} ", unique);
+                log.info("Получена статистика, где isUnique {} ", unique);
                 return repository.getAllStats(start, end);
             }
         } else {
             if (unique) {
-                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
+                log.info("Получена статистика, где isUnique {} и uris {} ", unique, uris);
                 return repository.getStatsByUrisByUniqueIp(start, end, uris);
             } else {
-                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
+                log.info("Получена статистика, где isUnique {} и uris {} ", unique, uris);
                 return repository.getAllStatsByUris(start, end, uris);
             }
         }
