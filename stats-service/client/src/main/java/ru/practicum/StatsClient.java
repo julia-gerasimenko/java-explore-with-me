@@ -39,19 +39,20 @@ public class StatsClient {
                 .block();
     }
 
-    public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, String[] uris, Boolean isUnique) {
-        log.info("получена статистика за период с {}, по {}, uris {}, unique {}", start, end, uris, isUnique);
-        return client.get()
+    public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
+        return this.client.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
                         .queryParam("start", start)
                         .queryParam("end", end)
                         .queryParam("uris", uris)
-                        .queryParam("unique", isUnique)
+                        .queryParam("unique", unique)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .toEntityList(ViewStatsDto.class)
+                .doOnNext(c -> log.info("Get stats with param: start date {}, end date {}, uris {}, unique {}",
+                        start, end, uris, unique))
                 .block();
     }
 
