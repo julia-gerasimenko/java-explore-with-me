@@ -7,47 +7,47 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.StatsHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.exeption.ValidationException;
-import ru.practicum.model.StatHit;
 import ru.practicum.model.StatsHitMapper;
+import ru.practicum.model.StatHit;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class StatServiceImpl implements StatService {
 
     private final StatRepository repository;
 
-    @Transactional
     @Override
     public void saveStat(StatsHitDto dto) {
         StatHit statHit = repository.save(StatsHitMapper.statsHitDtoToStatHit(dto));
-        log.info("Получена статистика {}", statHit);
+        log.info("Save stat {}", statHit);
     }
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (start.isAfter(end)) {
-            log.info("Время окончания не может быть раньше времени начала");
-            throw new ValidationException("Время окончания не может быть раньше времени начала");
+            log.info("End time can't be before start time");
+            throw new ValidationException("End time can't be before start time");
         }
 
         if (uris.isEmpty()) {
             if (unique) {
-                log.info("Получить всю статистику где isUnique {} ", unique);
+                log.info("Get all stats with isUnique {} ", unique);
                 return repository.getStatsByUniqueIp(start, end);
             } else {
-                log.info("Получить всю статистику где isUnique {} ", unique);
+                log.info("Get all stats with isUnique {} ", unique);
                 return repository.getAllStats(start, end);
             }
         } else {
             if (unique) {
-                log.info("Получить всю статистику где isUnique {} и uris {} ", unique, uris);
+                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
                 return repository.getStatsByUrisByUniqueIp(start, end, uris);
             } else {
-                log.info("Получить всю статистику где isUnique {} и uris {} ", unique, uris);
+                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
                 return repository.getAllStatsByUris(start, end, uris);
             }
         }

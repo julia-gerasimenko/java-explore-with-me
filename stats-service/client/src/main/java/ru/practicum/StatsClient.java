@@ -18,25 +18,10 @@ import java.util.List;
 @PropertySource(value = {"classpath:statsServiceClient.properties"})
 public class StatsClient {
 
-    @Value("${stats.server.url}")
-    private String baseUrl;
-
     private final WebClient client;
 
-    public StatsClient() {
+    public StatsClient(@Value("${stats.server.url}") String baseUrl) {
         this.client = WebClient.create(baseUrl);
-    }
-
-    public void saveStats(String app, String uri, String ip, LocalDateTime timestamp) {
-        final StatsHitDto endpointHit = new StatsHitDto(app, uri, ip, timestamp);
-        log.info("Сохранение статистики {}", endpointHit);
-        this.client.post()
-                .uri("/hit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(endpointHit, StatsHitDto.class)
-                .retrieve()
-                .toBodilessEntity()
-                .block();
     }
 
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
@@ -56,4 +41,15 @@ public class StatsClient {
                 .block();
     }
 
+    public void saveStats(String app, String uri, String ip, LocalDateTime timestamp) {
+
+        this.client.post()
+                .uri("/hit")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new StatsHitDto(app, uri, ip, timestamp))
+                .retrieve()
+                .toBodilessEntity()
+                .doOnNext(c -> log.info("Save stats"))
+                .block();
+    }
 }

@@ -13,16 +13,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatHit {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private int id;
 
+    @Column(nullable = false)
     private String app;
 
+    @Column(nullable = false)
     private String uri;
 
+    @Column(nullable = false)
     private String ip;
 
-    @Column(name = "created")
+
+    @Column(name = "created", nullable = false)
     private LocalDateTime timestamp;
 }

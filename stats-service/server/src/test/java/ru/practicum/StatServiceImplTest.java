@@ -35,9 +35,9 @@ class StatServiceImplTest {
 
     @BeforeEach
     public void beforeEach() {
-        time = LocalDateTime.of(2022, 3, 5, 23, 0);
-        start = LocalDateTime.of(2021, 2, 20, 12, 0);
-        end = LocalDateTime.of(2023, 10, 30, 12, 10);
+        time = LocalDateTime.of(2023, 1, 14, 0, 0);
+        start = LocalDateTime.of(2021, 1, 3, 1, 1);
+        end = LocalDateTime.of(2023, 9, 2, 3, 1);
 
         statsHitDto = StatsHitDto.builder()
                 .app("ewm-main-service")
@@ -59,6 +59,8 @@ class StatServiceImplTest {
                 .uri("/events/1")
                 .hits(2)
                 .build();
+
+
     }
 
     @Test

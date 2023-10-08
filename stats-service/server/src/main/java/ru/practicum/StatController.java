@@ -25,6 +25,7 @@ public class StatController {
     @PostMapping("/hit")
     @ResponseStatus(value = HttpStatus.CREATED)
     public void saveStatsHit(@RequestBody @Valid StatsHitDto statsHitDto) {
+        log.info("Save StatsHit {}", statsHitDto);
         service.saveStat(statsHitDto);
     }
 
@@ -35,6 +36,7 @@ public class StatController {
             @RequestParam(value = "uris", defaultValue = "") List<String> uris,
             @RequestParam(value = "unique", defaultValue = "false") Boolean unique
     ) {
+        log.info("Get viewed stats with startDate {} endDate {}, uris {} unique {}", start, end, uris, unique);
         return service.getStats(start, end, uris, unique);
     }
 }
