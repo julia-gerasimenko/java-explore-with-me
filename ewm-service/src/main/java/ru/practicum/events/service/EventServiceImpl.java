@@ -47,7 +47,6 @@ import static ru.practicum.util.enam.EventsSort.VIEWS;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 @PropertySource(value = {"classpath:application.properties"})
 public class EventServiceImpl implements EventService {
     @Value("${app}")
@@ -81,7 +80,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional
     @Override
     public EventFullDto updateEventByIdAdmin(Long eventId, EventUpdatedDto eventUpdatedDto) {
         Event event = getEventById(eventId);
@@ -92,7 +91,7 @@ public class EventServiceImpl implements EventService {
         return mapToEventFullDto(event);
     }
 
-
+    @Transactional
     @Override
     public EventFullDto createEventPrivate(Long userId, NewEventDto newEventDto) {
         validateEventDate(newEventDto.getEventDate());
@@ -124,6 +123,7 @@ public class EventServiceImpl implements EventService {
         return mapToEventFullDto(event);
     }
 
+    @Transactional
     @Override
     public EventFullDto updateEventByIdPrivate(Long userId, Long eventId, EventUpdatedDto eventUpdatedDto) {
         Event event = getEventByIdAndInitiatorId(eventId, userId);
@@ -224,6 +224,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("событие с id = " + eventId + " не было найдено"));
     }
 
+    @Transactional
     private void updateEvent(Event event, EventUpdatedDto eventDto) {
         updateEventCommonFields(event, eventDto);
 
@@ -237,6 +238,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Transactional
     private void updateEventAdmin(Event event, EventUpdatedDto eventDto) {
         updateEventCommonFields(event, eventDto);
 
@@ -264,6 +266,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Transactional
     private void updateEventCommonFields(Event event, EventUpdatedDto eventDto) {
         if (eventDto.getAnnotation() != null && !eventDto.getAnnotation().isBlank()) {
             event.setAnnotation(eventDto.getAnnotation());

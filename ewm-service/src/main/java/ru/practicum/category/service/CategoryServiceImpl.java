@@ -24,11 +24,11 @@ import static ru.practicum.category.dto.CategoryMapper.toCategoryDto;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
         Category category = categoryRepository.save(toCategory(newCategoryDto));
@@ -44,6 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
         return toCategoryDto(category);
     }
 
+    @Transactional
     @Override
     public CategoryDto updateCategoryById(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id)
@@ -62,6 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public void deleteCategoryById(Long id) {
         boolean isExist = categoryRepository.existsById(id);

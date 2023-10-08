@@ -28,12 +28,12 @@ import static ru.practicum.compilations.dto.CompilationMapper.mapToNewCompilatio
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
+    @Transactional
     @Override
     public CompilationDto createCompilationAdmin(NewCompilationDto compilationDto) {
         Compilation compilation = mapToNewCompilation(compilationDto);
@@ -55,6 +55,7 @@ public class CompilationServiceImpl implements CompilationService {
         return mapToCompilationDto(savedCompilation);
     }
 
+    @Transactional
     @Override
     public CompilationDto updateCompilationByIdAdmin(Long compId, CompilationUpdatedDto dto) {
         Compilation toUpdate = compilationRepository.findById(compId).orElseThrow(() ->
@@ -76,6 +77,7 @@ public class CompilationServiceImpl implements CompilationService {
         return mapToCompilationDto(toUpdate);
     }
 
+    @Transactional
     @Override
     public void deleteCompilationByIdAdmin(Long compId) {
         getCompilation(compId);

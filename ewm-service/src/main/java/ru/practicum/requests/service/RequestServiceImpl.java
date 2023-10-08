@@ -82,22 +82,22 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto createParticipationRequest(Long userId, Long eventId) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new NotFoundException("User with id=" + userId + " hasn't found."));
+                -> new NotFoundException("Пользователь с id = " + userId + " не был найден."));
         Event event = eventRepository.findById(eventId).orElseThrow(()
-                -> new NotFoundException("Event with id=" + eventId + "  hasn't found found."));
+                -> new NotFoundException("Событие с id = " + eventId + "  не было найдено."));
 
         validateParticipantLimit(event);
 
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
-            throw new ValidateException("You can't create same request twice");
+            throw new ValidateException("Нельзя сделать один и тот же запрос дважды");
         }
 
         if (userId.equals(event.getInitiator().getId())) {
-            throw new ValidateException("Initiator of the event can't participate in own event");
+            throw new ValidateException("Инициатор события не может быть его участником");
         }
 
         if (!event.getState().equals(PUBLISHED)) {
-            throw new ValidateException("It isn't possible participate if event isn't published ");
+            throw new ValidateException("Невозможно принять участие в неопубликованном событии");
         }
 
         ParticipationRequest participationRequest = requestRepository.save(mapToNewParticipationRequest(event, user));
@@ -107,7 +107,7 @@ public class RequestServiceImpl implements RequestService {
             eventRepository.save(event);
         }
 
-        log.info("Create participation request {} ", participationRequest);
+        log.info("Создан запрос на участие {} ", participationRequest);
         return mapToParticipationRequestDto(participationRequest);
     }
 
@@ -120,7 +120,7 @@ public class RequestServiceImpl implements RequestService {
                     .map(ParticipationRequestMapper::mapToParticipationRequestDto)
                     .collect(Collectors.toList());
         }
-        log.info("Get participation request for event with id ={}", eventId);
+        log.info("Получен зарпос на участие в событии с id = {}", eventId);
         return Collections.emptyList();
     }
 
@@ -138,24 +138,24 @@ public class RequestServiceImpl implements RequestService {
     public EventRequestStatusUpdateResult updateEventRequestStatusPrivate(Long userId, Long eventId,
                                                                           EventRequestStatusUpdateRequest statusUpdateRequest) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " hasn't found."));
+                .orElseThrow(() -> new NotFoundException("Событие с id = " + eventId + " не было найдено."));
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-            throw new ValidateException("It isn't possible to update status if the application limit = 0");
+            throw new ValidateException("IНевозможно обновить статус когда лимит заявок = 0");
         }
         List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndIdIn(eventId,
                 statusUpdateRequest.getRequestIds());
 
         validateRequestStatus(requests);
 
-        log.info("Update event request status id= {}", eventId);
+        log.info("Обновления запроса к событию с id = {}", eventId);
         switch (statusUpdateRequest.getStatus()) {
             case CONFIRMED:
                 return createConfirmedStatus(requests, event);
             case REJECTED:
                 return createRejectedStatus(requests, event);
             default:
-                throw new ValidateException("State is not valid: " + statusUpdateRequest.getStatus());
+                throw new ValidateException("Статус не корректный: " + statusUpdateRequest.getStatus());
         }
     }
 
@@ -163,8 +163,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getParticipationRequestByUserId(Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " hasn't found"));
-        log.info("Get participation request for user with id= {}", userId);
+                .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не был найден"));
+        log.info("Получен запрос на участие от пользователя с id = {}", userId);
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(ParticipationRequestMapper::mapToParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -173,9 +173,9 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto updateStatusParticipationRequest(Long userId, Long requestId) {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
-                .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId + " не ыбл найден"));
         request.setStatus(CANCELED);
-        log.info("Update status participation request id= {}", requestId);
+        log.info("Обновлен статус на запроса на участие с id= {}", requestId);
         return mapToParticipationRequestDto(requestRepository.save(request));
     }
 
@@ -183,13 +183,13 @@ public class RequestServiceImpl implements RequestService {
         boolean isStatusPending = requests.stream()
                 .anyMatch(request -> !request.getStatus().equals(PENDING));
         if (isStatusPending) {
-            throw new ValidateException("Request status can't be change'");
+            throw new ValidateException("Статус запроса нельзя изменить");
         }
     }
 
     private void validateParticipantLimit(Event event) {
         if (event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(event.getParticipantLimit())) {
-            throw new ValidateException("The event participant number  was reached participation request limit.");
+            throw new ValidateException("Количество участников события достигло лимита");
         }
     }
 }
