@@ -13,7 +13,7 @@ class StatsHitMapperTest {
 
     @BeforeEach
     void beforeEach() {
-        LocalDateTime time = LocalDateTime.of(2022, 3, 5, 23, 0);
+        LocalDateTime time = LocalDateTime.of(2021, 2, 4, 22, 10);
         statsHitDto = StatsHitDto.builder()
                 .app("ewm-main-service")
                 .uri("/events/2")

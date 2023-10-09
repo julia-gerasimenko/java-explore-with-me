@@ -15,4 +15,5 @@ public class StatsHitMapper {
                 .timestamp(statsHitDto.getTimestamp())
                 .build();
     }
+
 }
