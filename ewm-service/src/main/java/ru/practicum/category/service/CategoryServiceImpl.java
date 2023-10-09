@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getCategories(int from, int size) {
-        log.info("Получены все категории.");
+        log.info("Получены все категории, from = {}, size = {}", from, size);
         return categoryRepository.findAll(new Pagination(from, size, Sort.unsorted())).stream()
                 .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());

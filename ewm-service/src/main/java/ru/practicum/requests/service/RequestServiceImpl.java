@@ -120,7 +120,7 @@ public class RequestServiceImpl implements RequestService {
                     .map(ParticipationRequestMapper::mapToParticipationRequestDto)
                     .collect(Collectors.toList());
         }
-        log.info("Получен зарпос на участие в событии с id = {}", eventId);
+        log.info("Получен зарпос на участие в событии с id = {} пользователя с id = {}", eventId, userId);
         return Collections.emptyList();
     }
 
@@ -141,14 +141,14 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Событие с id = " + eventId + " не было найдено."));
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-            throw new ValidateException("IНевозможно обновить статус когда лимит заявок = 0");
+            throw new ValidateException("Невозможно обновить статус когда лимит заявок = 0");
         }
         List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndIdIn(eventId,
                 statusUpdateRequest.getRequestIds());
 
         validateRequestStatus(requests);
 
-        log.info("Обновления запроса к событию с id = {}", eventId);
+        log.info("Обновления запроса к событию с id = {}, пользователя с id = {}", eventId, userId);
         switch (statusUpdateRequest.getStatus()) {
             case CONFIRMED:
                 return createConfirmedStatus(requests, event);
@@ -173,9 +173,9 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto updateStatusParticipationRequest(Long userId, Long requestId) {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
-                .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId + " не ыбл найден"));
+                .orElseThrow(() -> new NotFoundException("Запрос с id = " + requestId + " не ыбл найден"));
         request.setStatus(CANCELED);
-        log.info("Обновлен статус на запроса на участие с id= {}", requestId);
+        log.info("Обновлен статус на запроса на участие с id = {}, id пользователя = {}", requestId, userId);
         return mapToParticipationRequestDto(requestRepository.save(request));
     }
 
@@ -189,6 +189,7 @@ public class RequestServiceImpl implements RequestService {
 
     private void validateParticipantLimit(Event event) {
         if (event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(event.getParticipantLimit())) {
+            log.debug("Количество участников события {} достигло лимита", event);
             throw new ValidateException("Количество участников события достигло лимита");
         }
     }

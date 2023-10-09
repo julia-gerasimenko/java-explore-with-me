@@ -88,7 +88,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAllCompilationsPublic(Boolean pinned, Integer from, Integer size) {
-        log.info("Получены все компиляции");
+        log.info("Получены все компиляции: pinned = {}, from = {}, size = {}", pinned, from, size);
         if (pinned == null) {
             return compilationRepository.findAll(new Pagination(from, size, Sort.unsorted())).getContent().stream()
                     .map(CompilationMapper::mapToCompilationDto)

@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
-        log.info("Получены пользователи со следующими ids: {}", ids);
+        log.info("Получены пользователи со следующими ids: {}, from {}, size {}", ids, from, size);
         if (ids.isEmpty()) {
             return userRepository.findAll(new Pagination(from, size, Sort.unsorted())).stream()
                     .map(UserMapper::toUserDto)
