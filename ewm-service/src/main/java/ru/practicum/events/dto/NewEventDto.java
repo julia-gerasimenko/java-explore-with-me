@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import ru.practicum.locations.dto.LocationDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -18,28 +19,28 @@ import static ru.practicum.util.Constants.DATE_DEFAULT;
 @ToString
 public class NewEventDto {
 
-    @Size(min = 3, max = 120)
     @NotBlank
+    @Size(min = 3, max = 120)
     private String title;
 
-    @Size(min = 20, max = 2000)
     @NotBlank
+    @Size(min = 20, max = 2000)
     private String annotation;
 
     @NotNull(message = "Category can't be blank")
     private Long category;
 
-    @Size(min = 20, max = 7000)
     @NotBlank
+    @Size(min = 20, max = 7000)
     private String description;
 
     @NotNull
-    @JsonFormat(pattern = DATE_DEFAULT)
     @Future
+    @JsonFormat(pattern = DATE_DEFAULT)
     private LocalDateTime eventDate;
 
-    @NotNull
     @Valid
+    @NotNull
     private LocationDto location;
 
     @NotNull
@@ -50,4 +51,5 @@ public class NewEventDto {
 
     @NotNull
     private Boolean requestModeration = true;
+
 }

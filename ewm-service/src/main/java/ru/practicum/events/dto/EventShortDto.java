@@ -23,7 +23,7 @@ public class EventShortDto {
 
     private CategoryDto category;
 
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_DEFAULT)
     private LocalDateTime eventDate;
@@ -35,4 +35,6 @@ public class EventShortDto {
     private Boolean paid;
 
     private Long views;
+
+    private long comments;
 }

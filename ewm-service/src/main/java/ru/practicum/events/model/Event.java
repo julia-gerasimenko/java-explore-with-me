@@ -6,8 +6,9 @@ import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.category.model.Category;
-import ru.practicum.users.model.User;
+import ru.practicum.locations.model.Location;
 import ru.practicum.util.enam.EventState;
+import ru.practicum.users.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,10 +16,10 @@ import java.time.LocalDateTime;
 import static ru.practicum.util.Constants.DATE_DEFAULT;
 import static ru.practicum.util.enam.EventState.PENDING;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "events")
+@Getter
+@Setter
 @ToString
 @DynamicUpdate
 public class Event {
@@ -45,9 +46,9 @@ public class Event {
     @DateTimeFormat(pattern = DATE_DEFAULT)
     private LocalDateTime eventDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
 
     @Column(nullable = false)
@@ -56,8 +57,8 @@ public class Event {
     @Column(name = "participant_limit", nullable = false)
     private Integer participantLimit;
 
-    @Column(name = "confirmed_requests")
-    private Integer confirmedRequests = 0;
+    @Transient
+    private Long confirmedRequests = 0L;
 
     @Column(name = "request_moderation", nullable = false)
     private Boolean requestModeration;
@@ -70,11 +71,11 @@ public class Event {
     @Column(name = "state", nullable = false)
     private EventState state = PENDING;
 
-    @DateTimeFormat(pattern = DATE_DEFAULT)
     @Column(name = "created_on", nullable = false)
+    @DateTimeFormat(pattern = DATE_DEFAULT)
     private LocalDateTime createdOn = LocalDateTime.now();
 
-    @DateTimeFormat(pattern = DATE_DEFAULT)
     @Column(name = "published_on")
+    @DateTimeFormat(pattern = DATE_DEFAULT)
     private LocalDateTime publishedOn;
 }
