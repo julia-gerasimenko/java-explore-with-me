@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "158d9579-d6c7-40ee-86bd-55e714c9f3d8",
-		"name": "Diplom - feature",
+		"name": "Diplom.collection_feature",
 		"description": "Проверка дипомного проекта в части обработки комментариев.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "27272432"
