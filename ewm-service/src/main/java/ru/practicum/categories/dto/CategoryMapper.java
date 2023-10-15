@@ -28,6 +28,7 @@ public class CategoryMapper {
         category.setName(categoryDto.getName());
         return category;
     }
+
     public static Category toCategory(NewCategoryDto newCategoryDto) {
         Category category = new Category();
         category.setName(newCategoryDto.getName());
