@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 
 import static ru.practicum.util.Constants.DATE_DEFAULT;
 
+
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @ToString
 public class CommentDto {
+
     @Null
     private Long id;
 
@@ -30,3 +32,4 @@ public class CommentDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_DEFAULT)
     private LocalDateTime created;
 }
+

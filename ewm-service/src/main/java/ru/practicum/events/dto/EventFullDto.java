@@ -2,9 +2,9 @@ package ru.practicum.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import ru.practicum.category.dto.CategoryDto;
+import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.locations.dto.LocationDto;
-import ru.practicum.util.enam.EventState;
+import ru.practicum.util.enam.EventStates;
 import ru.practicum.users.dto.UserShortDto;
 
 import java.time.LocalDateTime;
@@ -48,12 +48,11 @@ public class EventFullDto {
 
     private long views;
 
-    private EventState state;
+    private EventStates state;
 
     private boolean requestModeration;
 
     private UserShortDto initiator;
 
     private long comments;
-
 }

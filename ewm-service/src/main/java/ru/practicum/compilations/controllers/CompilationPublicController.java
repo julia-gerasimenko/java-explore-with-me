@@ -23,11 +23,6 @@ public class CompilationPublicController {
 
     private final CompilationService serviceCompilation;
 
-    @GetMapping("/{compId}")
-    public CompilationDto getByIdPublic(@PathVariable Long compId) {
-        return serviceCompilation.getCompilationByIdPublic(compId);
-    }
-
     @GetMapping
     public Collection<CompilationDto> get(@RequestParam(required = false) Boolean pinned,
                                           @RequestParam(defaultValue = PAGE_DEFAULT_FROM)
@@ -37,4 +32,8 @@ public class CompilationPublicController {
         return serviceCompilation.getAllCompilationsPublic(pinned, from, size);
     }
 
+    @GetMapping("/{compId}")
+    public CompilationDto getByIdPublic(@PathVariable Long compId) {
+        return serviceCompilation.getCompilationByIdPublic(compId);
+    }
 }

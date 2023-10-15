@@ -13,7 +13,7 @@ import ru.practicum.comments.repository.CommentsRepository;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.handler.NotFoundException;
-import ru.practicum.handler.ValidateException;
+import ru.practicum.handler.ValidationException;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 import ru.practicum.util.Pagination;
@@ -24,26 +24,17 @@ import java.util.stream.Collectors;
 
 import static ru.practicum.comments.dto.CommentMapper.mapToComment;
 import static ru.practicum.comments.dto.CommentMapper.mapToCommentDto;
-import static ru.practicum.util.enam.EventState.PUBLISHED;
+import static ru.practicum.util.enam.EventStates.PUBLISHED;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class CommentServiceImpl implements CommentsService {
+public class CommentServiceImpl implements CommentService {
 
     private final CommentsRepository commentsRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-
-    @Override
-    public CommentDto getCommentByIdPrivate(Long userId, Long commentId) {
-        Comment comment = commentsRepository.findCommentByIdAndAuthorId(commentId, userId)
-                .orElseThrow(() -> new NotFoundException("Комментарий с i d = " + commentId + " не был найден."));
-
-        log.info("Получен комментарий с id = {} пользователя с i d = {}.", commentId, userId);
-        return mapToCommentDto(comment);
-    }
 
     @Transactional
     @Override
@@ -57,14 +48,12 @@ public class CommentServiceImpl implements CommentsService {
                 .orElseThrow(() -> new NotFoundException("Событие с id = " + eventId + " не обнаружено."));
 
         if (!event.getState().equals(PUBLISHED)) {
-            throw new ValidateException("Событие еще не было опубликовано.");
+            throw new ValidationException("Событие еще не было опубликовано.");
         }
-
         Comment comment = commentsRepository.save(mapToComment(user, event, commentDto));
 
         log.info("Создан комментарий с id = {} пользователя с id = {} к событию с id = {}",
                 comment.getId(), userId, eventId);
-
         return mapToCommentDto(comment);
     }
 
@@ -72,19 +61,24 @@ public class CommentServiceImpl implements CommentsService {
     @Override
     public CommentDto updateCommentByIdPrivate(Long userId, Long commentId, NewCommentDto newCommentDto) {
         CommentDto commentDto = CommentMapper.mapToComment(newCommentDto);
-
-        Comment comment = commentsRepository.findCommentByIdAndAuthorId(commentId, userId)
+        Comment comment = commentsRepository.findByIdAndAuthorId(commentId, userId)
                 .orElseThrow(() -> new NotFoundException("Комментарий с i d = " + commentId + " не был найден."));
 
         comment.setText(commentDto.getText());
         comment.setUpdated(LocalDateTime.now());
 
-        log.info("Обновлен комментарий с id = {}, пользователя с id= {}", commentId, userId);
-
+        log.info("Обновлен комментарий с id = {} пользователя с i d = {}.", commentId, userId);
         return mapToCommentDto(commentsRepository.save(comment));
     }
 
+    @Override
+    public CommentDto getCommentByIdPrivate(Long userId, Long commentId) {
+        Comment comment = commentsRepository.findByIdAndAuthorId(commentId, userId)
+                .orElseThrow(() -> new NotFoundException("Комментарий с i d = " + commentId + " не был найден."));
 
+        log.info("Получен комментарий с id = {} пользователя с i d = {}.", commentId, userId);
+        return mapToCommentDto(comment);
+    }
 
     @Override
     public List<CommentDto> getCommentsByEventIdPrivate(Long userId, Long eventId, Integer from, Integer size) {
@@ -92,7 +86,7 @@ public class CommentServiceImpl implements CommentsService {
                 .orElseThrow(() -> new NotFoundException("Событие с id = " + eventId + " не было найдено."));
 
         log.info("Получены комментарии пользователя с id = {} к событию с id = {}", userId, eventId);
-        return commentsRepository.findAllCommentsByEventId(eventId, new Pagination(from, size, Sort.unsorted()))
+        return commentsRepository.findAllByEventId(eventId, new Pagination(from, size, Sort.unsorted()))
                 .stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList());
@@ -105,8 +99,7 @@ public class CommentServiceImpl implements CommentsService {
         }
 
         log.info("Получены все комментарии пользователя с id = {} в период с {}", userId, from);
-
-        return commentsRepository.findAllCommentsByAuthorId(userId, new Pagination(from, size, Sort.unsorted()))
+        return commentsRepository.findAllByAuthorId(userId, new Pagination(from, size, Sort.unsorted()))
                 .stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList());
@@ -158,16 +151,15 @@ public class CommentServiceImpl implements CommentsService {
         log.info("Комментарий с id = {} успешно удален, admin", commentId);
     }
 
-
     @Override
     public List<CommentDto> getCommentsPublic(Long eventId, String text, Integer from, Integer size) {
         if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException("Событие с id = " + eventId + " не обнаружено.");
         }
 
-        log.info("Получен список комментариев, содержащих в себе следующий текст: {}", text);
+        log.info("Получен список комментариев к событию с id = {}, содержащих в себе следующий текст: {}", eventId, text);
 
-        return commentsRepository.findAllCommentsByEventIdAndByText(eventId, text, new Pagination(from, size, Sort.unsorted())).stream()
+        return commentsRepository.findAllEventIdAndByText(eventId, text, new Pagination(from, size, Sort.unsorted())).stream()
                 .map(CommentMapper::mapToCommentDto)
                 .collect(Collectors.toList());
     }

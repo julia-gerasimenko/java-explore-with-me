@@ -15,14 +15,6 @@ public class CommentMapper {
                 .build();
     }
 
-    public static Comment mapToComment(User user, Event event, CommentDto dto) {
-        Comment comment = new Comment();
-        comment.setText(dto.getText());
-        comment.setEvent(event);
-        comment.setAuthor(user);
-        return comment;
-    }
-
     public static CommentDto mapToCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
@@ -31,5 +23,13 @@ public class CommentMapper {
                 .eventId(comment.getEvent().getId())
                 .created(comment.getCreated())
                 .build();
+    }
+
+    public static Comment mapToComment(User user, Event event, CommentDto dto) {
+        Comment comment = new Comment();
+        comment.setText(dto.getText());
+        comment.setEvent(event);
+        comment.setAuthor(user);
+        return comment;
     }
 }

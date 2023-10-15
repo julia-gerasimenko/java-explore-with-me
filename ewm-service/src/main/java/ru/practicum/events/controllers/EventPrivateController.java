@@ -10,9 +10,9 @@ import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.EventUpdatedDto;
 import ru.practicum.events.dto.NewEventDto;
 import ru.practicum.events.service.EventService;
-import ru.practicum.requests.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.requests.dto.EventRequestStatusUpdateResult;
-import ru.practicum.requests.dto.ParticipationRequestDto;
+import ru.practicum.requests.dto.RequestStatusUpdate;
+import ru.practicum.requests.dto.StatusUpdateResult;
+import ru.practicum.requests.dto.RequestDto;
 import ru.practicum.requests.service.RequestService;
 
 import javax.validation.Valid;
@@ -34,12 +34,18 @@ public class EventPrivateController {
     private final RequestService requestService;
 
     @PostMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@PathVariable(value = "userId") Long userId,
                                @Valid @RequestBody NewEventDto eventDto) {
         return eventService.createEventPrivate(userId, eventDto);
     }
 
+    @PatchMapping("/{eventId}/requests")
+    public StatusUpdateResult updateEventRequestStatus(@PathVariable(value = "userId") Long userId,
+                                                       @PathVariable(value = "eventId") Long eventId,
+                                                       @RequestBody RequestStatusUpdate updateRequest) {
+        return requestService.updateEventRequestPrivate(userId, eventId, updateRequest);
+    }
 
     @GetMapping
     public Collection<EventShortDto> getEventsByUserId(@PathVariable(value = "userId") Long userId,
@@ -48,12 +54,6 @@ public class EventPrivateController {
                                                        @RequestParam(value = "size", defaultValue = PAGE_DEFAULT_SIZE)
                                                        @Positive Integer size) {
         return eventService.getAllEventsByUserIdPrivate(userId, from, size);
-    }
-
-    @GetMapping("/{eventId}/requests")
-    public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId,
-                                                                       @PathVariable(value = "eventId") Long eventId) {
-        return requestService.getParticipationRequestPrivate(userId, eventId);
     }
 
     @GetMapping("/{eventId}")
@@ -69,10 +69,9 @@ public class EventPrivateController {
         return eventService.updateEventByIdPrivate(userId, eventId, eventDto);
     }
 
-    @PatchMapping("/{eventId}/requests")
-    public EventRequestStatusUpdateResult updateEventRequestStatus(@PathVariable(value = "userId") Long userId,
-                                                                   @PathVariable(value = "eventId") Long eventId,
-                                                                   @RequestBody EventRequestStatusUpdateRequest updateRequest) {
-        return requestService.updateEventRequestStatusPrivate(userId, eventId, updateRequest);
+    @GetMapping("/{eventId}/requests")
+    public Collection<RequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId,
+                                                          @PathVariable(value = "eventId") Long eventId) {
+        return requestService.getRequestPrivate(userId, eventId);
     }
 }

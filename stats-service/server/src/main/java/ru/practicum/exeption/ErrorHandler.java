@@ -15,7 +15,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(final ValidationException e) {
+    public Map<String, String> handleValidationException(final ValidateException e) {
         log.error("Error Validation Exception: {}, {}", HttpStatus.BAD_REQUEST, e.getMessage());
         return Map.of("error", "Validation Error", "errorMessage", e.getMessage());
     }
@@ -23,7 +23,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("Error code: {}, {}", HttpStatus.BAD_REQUEST, e.getMessage());
+        log.error("Код ошибки: {}, {}", HttpStatus.BAD_REQUEST, e.getMessage());
         return Map.of("error", "Validation Error", "errorMessage", e.getMessage());
     }
 

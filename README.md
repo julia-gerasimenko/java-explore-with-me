@@ -1,2 +1,5 @@
 # java-explore-with-me
-Template repository for ExploreWithMe project.
+Свободное время — ценный ресурс. Ежедневно мы планируем, как его потратить — куда и с кем сходить.
+Афиша позволит пользователям делиться информацией об интересных событиях и находить компанию для участия в них.
+
+https://github.com/OlegS19/java-explore-with-me/pull/5

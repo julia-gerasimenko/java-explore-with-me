@@ -2,26 +2,26 @@ package ru.practicum.requests.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.events.model.Event;
-import ru.practicum.requests.model.ParticipationRequest;
+import ru.practicum.requests.model.Request;
 import ru.practicum.util.enam.EventRequestStatus;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
+public interface RequestRepository extends JpaRepository<Request, Long> {
 
-    List<ParticipationRequest> findAllByEventIdAndIdIn(Long eventId, Set<Long> requestIds);
+    Boolean existsByUserIdAndEventId(Long userId, Long eventId);
 
-    List<ParticipationRequest> findAllByRequesterId(Long requesterId);
+    List<Request> findAllByEventIdAndRequestIds(Long eventId, Set<Long> requestIds);
 
-    Boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
+    List<Request> findAllByUser(Long requesterId);
 
-    Optional<ParticipationRequest> findByIdAndRequesterId(Long requestId, Long requesterId);
+    Optional<Request> findByIdAndUser(Long requestId, Long requesterId);
 
-    List<ParticipationRequest> findAllByEventId(Long eventId);
+    List<Request> findAllByEvent(Long eventId);
+    
+    List<Request> findAllByEventAndStatus(List<Event> event, EventRequestStatus status);
 
-    Long countRequestByEventIdAndStatus(Long eventId, EventRequestStatus state);
-
-    List<ParticipationRequest> findAllByEventInAndStatus(List<Event> event, EventRequestStatus status);
+    Long countRequestByEventAndStatus(Long eventId, EventRequestStatus state);
 }

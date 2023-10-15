@@ -4,9 +4,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.practicum.util.enam.EventStates;
 import ru.practicum.events.model.Event;
 import ru.practicum.util.Pagination;
-import ru.practicum.util.enam.EventState;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (e.initiator.id IN :users OR :users IS NULL) " +
             "AND (e.state IN :states OR :states IS NULL)"
     )
-    List<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+    List<Event> findAllForAdmin(List<Long> users, List<EventStates> states, List<Long> categories,
                                 LocalDateTime rangeStart, PageRequest pageable);
 
     @Query(
@@ -49,7 +49,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "JOIN FETCH e.initiator i " +
                     "JOIN FETCH e.category c " +
                     "WHERE e.state = :state " +
-                    "AND (e.participantLimit = 0 OR e.participantLimit > e.confirmedRequests) " +
                     "AND (e.category.id IN :categories OR :categories IS NULL) " +
                     "AND e.eventDate > :rangeStart " +
                     "AND (e.paid = :paid OR :paid IS NULL) " +
@@ -58,7 +57,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "OR (UPPER(e.description) LIKE UPPER(CONCAT('%', :text, '%'))) " +
                     "OR (UPPER(e.title) LIKE UPPER(CONCAT('%', :text, '%'))))"
     )
-    List<Event> findAllPublishStateAvailable(EventState state, LocalDateTime rangeStart, List<Long> categories,
+    List<Event> findAllPublishStateAvailable(EventStates state, LocalDateTime rangeStart, List<Long> categories,
                                              Boolean paid, String text, Pagination pageable);
 
     @Query("SELECT e " +
@@ -66,13 +65,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "JOIN FETCH e.initiator " +
             "JOIN FETCH e.category " +
             "WHERE e.state = :state " +
-            "AND (e.participantLimit = 0 OR e.participantLimit > e.confirmedRequests) " +
             "AND (e.category.id IN :categories OR :categories IS NULL) " +
             "AND e.eventDate > :rangeStart " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
             "AND (:text IS NULL OR UPPER(e.annotation) LIKE UPPER(:searchPattern)) " +
             "OR (:text IS NULL OR UPPER(e.description) LIKE UPPER(:searchPattern))"
     )
-    List<Event> findAllPublishStateNotAvailable(EventState state, LocalDateTime rangeStart, List<Long> categories,
+    List<Event> findAllPublishStateNotAvailable(EventStates state, LocalDateTime rangeStart, List<Long> categories,
                                                 Boolean paid, String text, Pagination pageable);
+
+
 }

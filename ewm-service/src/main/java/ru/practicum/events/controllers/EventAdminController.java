@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.util.enam.EventStates;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventUpdatedDto;
 import ru.practicum.events.service.EventService;
-import ru.practicum.util.enam.EventState;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -30,7 +30,7 @@ public class EventAdminController {
 
     @GetMapping
     public Collection<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
-                                              @RequestParam(required = false) List<EventState> states,
+                                              @RequestParam(required = false) List<EventStates> states,
                                               @RequestParam(required = false) List<Long> categories,
                                               @RequestParam(required = false)
                                               @DateTimeFormat(pattern = DATE_DEFAULT) LocalDateTime rangeStart,
@@ -48,5 +48,4 @@ public class EventAdminController {
                                          @Valid @RequestBody EventUpdatedDto eventDto) {
         return eventService.updateEventByIdAdmin(eventId, eventDto);
     }
-
 }

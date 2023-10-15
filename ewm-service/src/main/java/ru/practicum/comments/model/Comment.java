@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
+@ToString
 @Getter
 @Setter
-@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @DynamicUpdate
 public class Comment {
@@ -25,18 +25,17 @@ public class Comment {
     @Column(updatable = false)
     private Long id;
 
-
-    @Column(nullable = false, length = 10000)
+    @Column(nullable = false)
     private String text;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "event_id")
-    @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "author_id", updatable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
     @Column(name = "created_date", nullable = false, updatable = false)

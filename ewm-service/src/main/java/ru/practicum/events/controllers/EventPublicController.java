@@ -7,8 +7,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
+import ru.practicum.util.enam.EventsSorting;
 import ru.practicum.events.service.EventService;
-import ru.practicum.util.enam.EventsSort;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
@@ -29,12 +29,6 @@ public class EventPublicController {
 
     private final EventService eventService;
 
-    @GetMapping("/{id}")
-    public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
-                                           HttpServletRequest request) {
-        return eventService.getEventByIdPublic(id, request);
-    }
-
     @GetMapping
     public Collection<EventShortDto> getEventsPublic(@RequestParam(required = false) String text,
                                                      @RequestParam(required = false) List<Long> categories,
@@ -51,10 +45,15 @@ public class EventPublicController {
                                                      @Positive Integer size,
                                                      HttpServletRequest request
     ) {
-        EventsSort sortParam = EventsSort.from(sort).orElseThrow(() -> new ValidationException("Sort isn't valid: "
+        EventsSorting sortParam = EventsSorting.from(sort).orElseThrow(() -> new ValidationException("Sort isn't valid: "
                 + sort));
-
         return eventService.getEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sortParam, from, size, request);
+    }
+
+    @GetMapping("/{id}")
+    public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
+                                           HttpServletRequest request) {
+        return eventService.getEventByIdPublic(id, request);
     }
 }

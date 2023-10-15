@@ -20,18 +20,18 @@ import static ru.practicum.util.Constants.DATE_DEFAULT;
 public class NewEventDto {
 
     @NotBlank
-    @Size(min = 3, max = 120)
+    @Size(min = 5, max = 100)
     private String title;
 
     @NotBlank
-    @Size(min = 20, max = 2000)
+    @Size(min = 20, max = 5000)
     private String annotation;
 
-    @NotNull(message = "Category can't be blank")
+    @NotNull(message = "Категория е может быть пустой или отсутствовать")
     private Long category;
 
     @NotBlank
-    @Size(min = 20, max = 7000)
+    @Size(min = 100, max = 10000)
     private String description;
 
     @NotNull
@@ -51,5 +51,4 @@ public class NewEventDto {
 
     @NotNull
     private Boolean requestModeration = true;
-
 }

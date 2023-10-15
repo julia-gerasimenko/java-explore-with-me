@@ -19,7 +19,7 @@ class StatHitTest {
     @Test
     void itemRequestDtoTest() throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime time = LocalDateTime.of(2021, 2, 4, 22, 10);
+        LocalDateTime time = LocalDateTime.of(2023, 3, 3, 3, 3);
         StatHit statHit = StatHit.builder()
                 .id(1)
                 .app("ewm-main-service")

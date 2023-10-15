@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class CompilationUpdatedDto {
 
-    @Size(min = 1, max = 50)
+    @Size(min = 1, max = 100)
     private String title;
 
     private Boolean pinned;
