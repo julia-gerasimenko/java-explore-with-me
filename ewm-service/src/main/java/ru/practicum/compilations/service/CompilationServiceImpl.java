@@ -89,7 +89,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         log.info("Получены все компиляции: pinned = {}, from = {}, size = {}", pinned, from, size);
 
-        return compilationRepository.findAllByPin(pinned, new Pagination(from, size, Sort.unsorted()))
+        return compilationRepository.findAllByPinned(pinned, new Pagination(from, size, Sort.unsorted()))
                 .getContent().stream()
                 .map(CompilationMapper::mapToCompilationDto)
                 .collect(Collectors.toList());

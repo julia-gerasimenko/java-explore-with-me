@@ -6,5 +6,5 @@ import ru.practicum.util.Pagination;
 import ru.practicum.compilations.model.Compilation;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
-    Page<Compilation> findAllByPin(Boolean pinned, Pagination paginationSetup);
+    Page<Compilation> findAllByPinned(Boolean pinned, Pagination paginationSetup);
 }
