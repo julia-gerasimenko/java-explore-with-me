@@ -47,13 +47,13 @@ public class RequestServiceImpl implements RequestService {
                 -> new NotFoundException("Пользователь с id = " + userId + " не был найден."));
 
         event.setConfirmedRequests(requestRepository
-                .countRequestByEventAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
+                .countRequestByEventIdAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
         validateParticipantLimit(event);
 
         if (userId.equals(event.getInitiator().getId())) {
             throw new ValidationException("Инициатор события не может быть участников своего события");
         }
-        if (requestRepository.existsByUserIdAndEventId(userId, eventId)) {
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ValidationException("Нельзя создать один и тот же запрос дважды");
         }
         if (!event.getState().equals(PUBLISHED)) {
@@ -71,7 +71,7 @@ public class RequestServiceImpl implements RequestService {
     public List<RequestDto> getRequestPrivate(Long userId, Long eventId) {
 
         if (eventRepository.findByIdAndInitiatorId(eventId, userId).isPresent()) {
-            return requestRepository.findAllByEvent(eventId).stream()
+            return requestRepository.findAllByEventId(eventId).stream()
                     .map(RequestMapper::mapToParticipationRequestDto)
                     .collect(Collectors.toList());
         }
@@ -90,12 +90,12 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Событие с id = " + eventId + " не было найдено."));
         event.setConfirmedRequests(requestRepository
-                .countRequestByEventAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
+                .countRequestByEventIdAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             throw new ValidationException("Невозможно обновить статус если лимит заявок = 0 = 0");
         }
-        List<Request> requests = requestRepository.findAllByEventIdAndRequestIds(eventId,
+        List<Request> requests = requestRepository.findAllByEventIdAndIdIn(eventId,
                 statusUpdateRequest.getRequestIds());
 
         validateRequestStatus(requests);
@@ -117,7 +117,7 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не был найден."));
         log.info("Получен запрос на участие от пользователя с id= {}", userId);
-        return requestRepository.findAllByUser(userId).stream()
+        return requestRepository.findAllByRequesterId(userId).stream()
                 .map(RequestMapper::mapToParticipationRequestDto)
                 .collect(Collectors.toList());
     }
@@ -128,7 +128,7 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException("Пользователь с id = " + userId + " не был найден.");
         }
 
-        Request request = requestRepository.findByIdAndUser(requestId, userId)
+        Request request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException("Запрос с id =" + requestId + " не был найден."));
         request.setStatus(CANCELED);
         log.info("Update status participation request id= {}", requestId);

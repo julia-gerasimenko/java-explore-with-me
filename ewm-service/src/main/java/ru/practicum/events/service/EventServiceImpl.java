@@ -406,7 +406,7 @@ public class EventServiceImpl implements EventService {
     }
 
     public void setConfirmedRequestForEventList(List<Event> events) {
-        Map<Event, Long> requestsPerEvent = requestRepository.findAllByEventAndStatus(events, EventRequestStatus.CONFIRMED)
+        Map<Event, Long> requestsPerEvent = requestRepository.findAllByEventInAndStatus(events, EventRequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.groupingBy(Request::getEvent, Collectors.counting()));
         if (!requestsPerEvent.isEmpty()) {
@@ -418,7 +418,7 @@ public class EventServiceImpl implements EventService {
 
     public void setConfirmedRequestsForEvent(Event event) {
         event.setConfirmedRequests(requestRepository
-                .countRequestByEventAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
+                .countRequestByEventIdAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
     }
 
 }
