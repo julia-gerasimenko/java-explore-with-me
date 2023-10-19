@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.practicum.dto.Constants.DATE_TIME_PATTERN;
+import static ru.practicum.dto.Constant.DATE_TIME_PATTERN;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +22,13 @@ public class StatController {
 
     private final StatService service;
 
+    @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveStatsHit(@RequestBody @Valid StatsHitDto statsHitDto) {
+        log.info("Save StatsHit {}", statsHitDto);
+        service.saveStat(statsHitDto);
+    }
+
     @GetMapping("/stats")
     public Collection<ViewStatsDto> getViewStats(
             @RequestParam(value = "start") @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime start,
@@ -29,12 +36,7 @@ public class StatController {
             @RequestParam(value = "uris", defaultValue = "") List<String> uris,
             @RequestParam(value = "unique", defaultValue = "false") Boolean unique
     ) {
+        log.info("Get viewed stats with startDate {} endDate {}, uris {} unique {}", start, end, uris, unique);
         return service.getStats(start, end, uris, unique);
-    }
-
-    @PostMapping("/hit")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void saveStatsHit(@RequestBody @Valid StatsHitDto statsHitDto) {
-        service.saveStat(statsHitDto);
     }
 }

@@ -23,7 +23,7 @@ import static ru.practicum.util.enam.EventRequestStatus.PENDING;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @DynamicUpdate
 @ToString
-public class Request {
+public class ParticipationRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -30,6 +30,9 @@ public class CommentPublicController {
                                             @RequestParam(defaultValue = PAGE_DEFAULT_SIZE)
                                             @Positive Integer size
     ) {
+
+        log.info("Get public comments with text {}", text);
         return commentService.getCommentsPublic(eventId, text, from, size);
     }
+
 }

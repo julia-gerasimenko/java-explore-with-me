@@ -5,16 +5,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.categories.model.Category;
+import ru.practicum.category.model.Category;
 import ru.practicum.locations.model.Location;
-import ru.practicum.util.enam.EventStates;
+import ru.practicum.util.enam.EventState;
 import ru.practicum.users.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 import static ru.practicum.util.Constants.DATE_DEFAULT;
-import static ru.practicum.util.enam.EventStates.PENDING;
+import static ru.practicum.util.enam.EventState.PENDING;
 
 @Entity
 @Table(name = "events")
@@ -69,7 +69,7 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
-    private EventStates state = PENDING;
+    private EventState state = PENDING;
 
     @Column(name = "created_on", nullable = false)
     @DateTimeFormat(pattern = DATE_DEFAULT)

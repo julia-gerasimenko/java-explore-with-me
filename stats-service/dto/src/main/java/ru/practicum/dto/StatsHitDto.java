@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-import static ru.practicum.dto.Constants.DATE_TIME_PATTERN;
+import static ru.practicum.dto.Constant.DATE_TIME_PATTERN;
 
 @Getter
 @Builder
@@ -18,13 +18,13 @@ import static ru.practicum.dto.Constants.DATE_TIME_PATTERN;
 @AllArgsConstructor
 public class StatsHitDto {
 
-    @NotBlank(message = "Поле App не может быть пустым")
+    @NotBlank(message = "App can't be blank")
     private String app;
 
-    @NotBlank(message = "Поле URI не может быть пустым")
+    @NotBlank(message = "URI can't be blank")
     private String uri;
 
-    @NotBlank(message = "Поле IP не может быть пустым")
+    @NotBlank(message = "IP can't be blank")
     private String ip;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN)

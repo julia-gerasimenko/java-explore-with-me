@@ -13,7 +13,7 @@ import static ru.practicum.util.Constants.DATE_DEFAULT;
 @Builder
 @AllArgsConstructor
 @ToString
-public class RequestDto {
+public class ParticipationRequestDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_DEFAULT)
     private LocalDateTime created;

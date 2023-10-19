@@ -42,7 +42,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ConstraintViolationException.class, ValidationException.class, NotAvailableException.class,
+    @ExceptionHandler({ConstraintViolationException.class, ValidateException.class, NotAvailableException.class,
             DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleConstraintViolationException(RuntimeException e) {
@@ -55,7 +55,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class,
-            MissingServletRequestParameterException.class, ValidationDateException.class,
+            MissingServletRequestParameterException.class, ValidateDateException.class,
             MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleNotValidException(final RuntimeException e) {

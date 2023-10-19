@@ -9,7 +9,7 @@ import java.util.Set;
 @Setter
 @ToString
 @AllArgsConstructor
-public class RequestStatusUpdate extends EventUpdatedDto {
+public class EventRequestStatusUpdateRequest extends EventUpdatedDto {
 
     private Set<Long> requestIds;
 

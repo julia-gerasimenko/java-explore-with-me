@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.requests.dto.RequestDto;
+import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.service.RequestService;
 
 import java.util.List;
@@ -19,19 +19,22 @@ public class RequestPrivateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RequestDto create(@PathVariable(value = "userId") Long userId,
-                             @RequestParam(value = "eventId") Long eventId) {
-        return requestService.createRequest(userId, eventId);
+    public ParticipationRequestDto create(@PathVariable(value = "userId") Long userId,
+                                          @RequestParam(value = "eventId") Long eventId) {
+        log.info("Create participation request of event id= {} for user with id= {} ", eventId, userId);
+        return requestService.createParticipationRequest(userId, eventId);
     }
 
     @GetMapping
-    public List<RequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId) {
-        return requestService.getRequestByUserId(userId);
+    public List<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId) {
+        log.info("Create participation requests for with id= {} ", userId);
+        return requestService.getParticipationRequestByUserId(userId);
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public RequestDto updateParticipationRequestStatusToCancel(@PathVariable(value = "userId") Long userId,
-                                                               @PathVariable(value = "requestId") Long requestId) {
-        return requestService.updateStatusRequest(userId, requestId);
+    public ParticipationRequestDto updateParticipationRequestStatusToCancel(@PathVariable(value = "userId") Long userId,
+                                                                            @PathVariable(value = "requestId") Long requestId) {
+        log.info("Update participation request of event id= {} for user with id= {} ", requestId, userId);
+        return requestService.updateStatusParticipationRequest(userId, requestId);
     }
 }

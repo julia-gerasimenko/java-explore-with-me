@@ -4,7 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.util.enam.EventStates;
+import ru.practicum.util.enam.EventState;
 import ru.practicum.events.model.Event;
 import ru.practicum.util.Pagination;
 
@@ -19,9 +19,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByIdIn(Set<Long> events);
 
     Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
-
-    @Query("SELECT MIN(e.publishedOn) FROM Event e WHERE e.id IN :eventsId")
-    Optional<LocalDateTime> getStart(@Param("eventsId") Collection<Long> eventsId);
 
     @Query("SELECT e " +
             "FROM Event AS e " +
@@ -40,7 +37,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (e.initiator.id IN :users OR :users IS NULL) " +
             "AND (e.state IN :states OR :states IS NULL)"
     )
-    List<Event> findAllForAdmin(List<Long> users, List<EventStates> states, List<Long> categories,
+    List<Event> findAllForAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                 LocalDateTime rangeStart, PageRequest pageable);
 
     @Query(
@@ -57,7 +54,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "OR (UPPER(e.description) LIKE UPPER(CONCAT('%', :text, '%'))) " +
                     "OR (UPPER(e.title) LIKE UPPER(CONCAT('%', :text, '%'))))"
     )
-    List<Event> findAllPublishStateAvailable(EventStates state, LocalDateTime rangeStart, List<Long> categories,
+    List<Event> findAllPublishStateAvailable(EventState state, LocalDateTime rangeStart, List<Long> categories,
                                              Boolean paid, String text, Pagination pageable);
 
     @Query("SELECT e " +
@@ -71,8 +68,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (:text IS NULL OR UPPER(e.annotation) LIKE UPPER(:searchPattern)) " +
             "OR (:text IS NULL OR UPPER(e.description) LIKE UPPER(:searchPattern))"
     )
-    List<Event> findAllPublishStateNotAvailable(EventStates state, LocalDateTime rangeStart, List<Long> categories,
+    List<Event> findAllPublishStateNotAvailable(EventState state, LocalDateTime rangeStart, List<Long> categories,
                                                 Boolean paid, String text, Pagination pageable);
+
+    @Query("SELECT MIN(e.publishedOn) FROM Event e WHERE e.id IN :eventsId")
+    Optional<LocalDateTime> getStart(@Param("eventsId") Collection<Long> eventsId);
 
 
 }

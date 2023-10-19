@@ -18,20 +18,26 @@ public class CommentAdminController {
 
     private final CommentService commentService;
 
+
     @GetMapping("/{commentId}")
     public CommentDto getByIdAdmin(@PathVariable(value = "commentId") Long commentId) {
+        log.info("Get comment with id {}", commentId);
         return commentService.getCommentByIdAdmin(commentId);
+    }
+
+
+    @PatchMapping("/{commentId}")
+    public CommentDto updateAdmin(@PathVariable(value = "commentId") Long commentId,
+                                  @Valid @RequestBody NewCommentDto newCommentDto) {
+        log.info("Update comment {} with id= {}", newCommentDto, commentId);
+        return commentService.updateCommentAdmin(commentId, newCommentDto);
     }
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteByIdAdmin(@PathVariable(value = "commentId") Long commentId) {
+        log.info("Delete comments with id= {}", commentId);
         commentService.deleteCommentByIdAdmin(commentId);
     }
 
-    @PatchMapping("/{commentId}")
-    public CommentDto updateAdmin(@PathVariable(value = "commentId") Long commentId,
-                                  @Valid @RequestBody NewCommentDto newCommentDto) {
-        return commentService.updateCommentAdmin(commentId, newCommentDto);
-    }
 }

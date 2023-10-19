@@ -1,8 +1,8 @@
-package ru.practicum.categories.dto;
+package ru.practicum.category.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.categories.model.Category;
+import ru.practicum.category.model.Category;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CategoryMapper {
@@ -23,15 +23,15 @@ public class CategoryMapper {
                 .build();
     }
 
-    public static Category toCategory(CategoryDto categoryDto) {
-        Category category = new Category();
-        category.setName(categoryDto.getName());
-        return category;
-    }
-
     public static Category toCategory(NewCategoryDto newCategoryDto) {
         Category category = new Category();
         category.setName(newCategoryDto.getName());
+        return category;
+    }
+
+    public static Category toCategory(CategoryDto categoryDto) {
+        Category category = new Category();
+        category.setName(categoryDto.getName());
         return category;
     }
 }

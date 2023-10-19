@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
-import ru.practicum.util.enam.EventsSorting;
+import ru.practicum.util.enam.EventsSort;
 import ru.practicum.events.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +29,13 @@ public class EventPublicController {
 
     private final EventService eventService;
 
+    @GetMapping("/{id}")
+    public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
+                                           HttpServletRequest request) {
+        log.info("Get event with id= {}", id);
+        return eventService.getEventByIdPublic(id, request);
+    }
+
     @GetMapping
     public Collection<EventShortDto> getEventsPublic(@RequestParam(required = false) String text,
                                                      @RequestParam(required = false) List<Long> categories,
@@ -45,15 +52,12 @@ public class EventPublicController {
                                                      @Positive Integer size,
                                                      HttpServletRequest request
     ) {
-        EventsSorting sortParam = EventsSorting.from(sort).orElseThrow(() -> new ValidationException("Sort isn't valid: "
+        EventsSort sortParam = EventsSort.from(sort).orElseThrow(() -> new ValidationException("Sort isn't valid: "
                 + sort));
+
+        log.info("Get public events with text {}, categories {} onlyAvailable {}, sort {}", text, categories,
+                onlyAvailable, sort);
         return eventService.getEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sortParam, from, size, request);
-    }
-
-    @GetMapping("/{id}")
-    public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
-                                           HttpServletRequest request) {
-        return eventService.getEventByIdPublic(id, request);
     }
 }

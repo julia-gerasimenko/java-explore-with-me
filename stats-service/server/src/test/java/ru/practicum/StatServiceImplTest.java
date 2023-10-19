@@ -20,25 +20,24 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StatServiceImplTest {
-
-    @InjectMocks
-    private StatServiceImpl statService;
     @Mock
     private StatRepository repository;
+    @InjectMocks
+    private StatServiceImpl statService;
 
-    private LocalDateTime time;
-    private ViewStatsDto viewStatsDtoOne;
     private StatsHitDto statsHitDto;
     private StatHit statHit;
+    private LocalDateTime time;
+    private ViewStatsDto viewStatsDtoOne;
 
     private LocalDateTime start;
     private LocalDateTime end;
 
     @BeforeEach
     public void beforeEach() {
-        time = LocalDateTime.of(2023, 3, 3, 3, 3);
-        start = LocalDateTime.of(2021, 1, 1, 1, 1);
-        end = LocalDateTime.of(2023, 4, 4, 4, 4);
+        time = LocalDateTime.of(2023, 1, 14, 0, 0);
+        start = LocalDateTime.of(2021, 1, 3, 1, 1);
+        end = LocalDateTime.of(2023, 9, 2, 3, 1);
 
         statsHitDto = StatsHitDto.builder()
                 .app("ewm-main-service")

@@ -1,17 +1,16 @@
 {
 	"info": {
-		"_postman_id": "158d9579-d6c7-40ee-86bd-55e714c9f3d8",
-		"name": "Diplom.collection_feature",
-		"description": "Проверка дипомного проекта в части обработки комментариев.",
+		"_postman_id": "a9f5c6a9-15a5-4290-b58a-b3e859cf6f1c",
+		"name": "Diplom - feature",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "27272432"
+		"_exporter_id": "26991858"
 	},
 	"item": [
 		{
 			"name": "Preconditions",
 			"item": [
 				{
-					"name": "User add with id = 1",
+					"name": "User  add with id = 1",
 					"event": [
 						{
 							"listen": "test",

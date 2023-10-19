@@ -25,10 +25,10 @@ public class CompilationMapper {
 
     public static Compilation mapToNewCompilation(NewCompilationDto compilationDto) {
         Compilation compilation = new Compilation();
-
         compilation.setPinned(compilationDto.getPinned());
         compilation.setTitle(compilationDto.getTitle());
 
         return compilation;
     }
+
 }

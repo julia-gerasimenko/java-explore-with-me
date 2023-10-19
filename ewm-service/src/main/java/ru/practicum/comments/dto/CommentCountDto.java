@@ -7,7 +7,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class CommentAmountDto {
+public class CommentCountDto {
+
     private Long eventId;
     private Long count;
+
 }

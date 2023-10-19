@@ -31,8 +31,10 @@ import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDt
 @Transactional
 public class CompilationServiceImpl implements CompilationService {
 
+
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+
 
     @Override
     public CompilationDto createCompilationAdmin(NewCompilationDto compilationDto) {
@@ -59,7 +61,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto updateCompilationByIdAdmin(Long compId, CompilationUpdatedDto dto) {
         Compilation toUpdate = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Компиляция с id %s не найдена.", compId)));
+                new NotFoundException(String.format("Compilation %s not found", compId)));
 
         if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
             toUpdate.setTitle(dto.getTitle());
@@ -77,17 +79,22 @@ public class CompilationServiceImpl implements CompilationService {
         return mapToCompilationDto(toUpdate);
     }
 
+    @Override
+    public void deleteCompilationByIdAdmin(Long compId) {
+        getCompilation(compId);
+        log.info("Delete compilation with id= {} ", compId);
+        compilationRepository.deleteById(compId);
+    }
 
     @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAllCompilationsPublic(Boolean pinned, Integer from, Integer size) {
+        log.info("Get all compilations");
         if (pinned == null) {
             return compilationRepository.findAll(new Pagination(from, size, Sort.unsorted())).getContent().stream()
                     .map(CompilationMapper::mapToCompilationDto)
                     .collect(Collectors.toList());
         }
-
-        log.info("Получены все компиляции: pinned = {}, from = {}, size = {}", pinned, from, size);
 
         return compilationRepository.findAllByPinned(pinned, new Pagination(from, size, Sort.unsorted()))
                 .getContent().stream()
@@ -97,27 +104,15 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Transactional(readOnly = true)
     @Override
-    public CompilationDto getCompilationByIdPublic(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция с compId = " + compId + " не найдена."));
-
-        log.info("Компиляция с id = {} получена.", compId);
+    public CompilationDto getCompilationByIdPublic(Long id) {
+        Compilation compilation = getCompilation(id);
+        log.info("Get compilation with id= {} ", id);
         return mapToCompilationDto(compilation);
     }
 
-    @Override
-    public void deleteCompilationByIdAdmin(Long compId) {
-        if (compilationRepository.findById(compId).isEmpty()) {
-            throw new NotFoundException(String.format("Компиляция с id %s не найдена.", compId));
-        }
-
-        compilationRepository.deleteById(compId);
-        log.info("Компиляция с id= {} удалена.", compId);
-    }
-
     @Transactional(readOnly = true)
-    private Compilation getCompilation(Long compId) {
-        return compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция с compId = " + compId + " не найдена."));
+    private Compilation getCompilation(Long id) {
+        return compilationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Compilation with id=" + id + " hasn't found"));
     }
 }

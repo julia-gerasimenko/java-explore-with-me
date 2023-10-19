@@ -30,14 +30,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(NewUserRequest userDto) {
         User user = userRepository.save(toUser(userDto));
-        log.info("Соз0дан пользователь {}", user);
+        log.info("Create user {}", user);
         return toUserDto(user);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDto> getAllUsers(List<Long> ids, Integer from, Integer size) {
-        log.info("Получен список пользователей с ids: {}, from {}, size {}", ids, from, size);
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
+        log.info("Get user with ids: {}", ids);
         if (ids.isEmpty()) {
             return userRepository.findAll(new Pagination(from, size, Sort.unsorted())).stream()
                     .map(UserMapper::toUserDto)
@@ -52,11 +52,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не был найден");
+            throw new NotFoundException("User with id=" + userId + " hasn't found");
         }
-
+        log.info("Delete user with id= {}", userId);
         userRepository.deleteById(userId);
-        log.info("Пользователь с id = {} успешно удален.", userId);
     }
-
 }

@@ -23,20 +23,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @WebMvcTest(controllers = StatController.class)
 public class StatControllerTest {
+
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockBean
-    private StatServiceImpl statService;
-
-    @Mock
-    StatRepository statRepository;
 
     @Autowired
     private MockMvc mockMvc;
 
     @InjectMocks
     private StatController statController;
+
+    @MockBean
+    private StatServiceImpl statService;
+
+    @Mock
+    StatRepository statRepository;
 
     @Test
     public void testSaveStatsHit() throws Exception {

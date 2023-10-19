@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @ToString
 public class NewCommentDto {
 
-    @Size(min = 2, max = 5000)
-    @NotBlank(message = "Комментарий не может быть пустым")
+    @Size(min = 2, max = 2000)
+    @NotBlank(message = "Comment can't be blank")
     private String text;
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.util.enam.EventStates;
+import ru.practicum.util.enam.EventState;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventUpdatedDto;
 import ru.practicum.events.service.EventService;
@@ -30,7 +30,7 @@ public class EventAdminController {
 
     @GetMapping
     public Collection<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
-                                              @RequestParam(required = false) List<EventStates> states,
+                                              @RequestParam(required = false) List<EventState> states,
                                               @RequestParam(required = false) List<Long> categories,
                                               @RequestParam(required = false)
                                               @DateTimeFormat(pattern = DATE_DEFAULT) LocalDateTime rangeStart,
@@ -40,12 +40,14 @@ public class EventAdminController {
                                               @PositiveOrZero Integer from,
                                               @RequestParam(defaultValue = PAGE_DEFAULT_SIZE)
                                               @Positive Integer size) {
+        log.info("Get events of users {} with states {}, categories {}", users, states, categories);
         return eventService.getAllEventsAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventAdmin(@PathVariable(value = "eventId") Long eventId,
                                          @Valid @RequestBody EventUpdatedDto eventDto) {
+        log.info("Update event {} with id= {}", eventDto, eventId);
         return eventService.updateEventByIdAdmin(eventId, eventDto);
     }
 }
