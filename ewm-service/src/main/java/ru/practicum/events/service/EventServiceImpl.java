@@ -119,16 +119,11 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllEventsByUserIdPrivate(Long userId, int from, int size) {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не был найден.");
-        }
-
         List<Event> events = eventRepository.findAllWithInitiatorByInitiatorId(userId, new Pagination(from, size,
                 Sort.unsorted()));
         log.info("Получен список всех событий с id = {} from {}, size {}, private", userId, from, size);
         setConfirmedRequestForEventList(events);
         return getEventShortDtoWithComments(events);
-
     }
 
     @Transactional(readOnly = true)
