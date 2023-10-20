@@ -18,13 +18,13 @@ import static ru.practicum.dto.Constant.DATE_TIME_PATTERN;
 @AllArgsConstructor
 public class StatsHitDto {
 
-    @NotBlank(message = "App не может быть пустым")
+    @NotBlank(message = "App can't be blank")
     private String app;
 
-    @NotBlank(message = "URI не может быть пустым")
+    @NotBlank(message = "URI can't be blank")
     private String uri;
 
-    @NotBlank(message = "IP не может быть пустым")
+    @NotBlank(message = "IP can't be blank")
     private String ip;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN)

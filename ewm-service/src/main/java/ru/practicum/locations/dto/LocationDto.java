@@ -1,9 +1,6 @@
-package ru.practicum.events.dto;
+package ru.practicum.locations.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -14,13 +11,13 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class LocationDto {
-  @Max(90)
   @Min(-90)
+  @Max(90)
   @NotNull
   private Float lat;
 
-  @Max(180)
   @Min(-180)
+  @Max(180)
   @NotNull
   private Float lon;
 }

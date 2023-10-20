@@ -26,7 +26,7 @@ public class CategoryPublicController {
     @GetMapping
     public List<CategoryDto> get(@RequestParam(value = "from", defaultValue = PAGE_DEFAULT_FROM) @PositiveOrZero Integer from,
                                  @RequestParam(value = "size", defaultValue = PAGE_DEFAULT_SIZE) @Positive Integer size) {
-        return categoryService.getCategories(from, size);
+        return categoryService.getCategory(from, size);
     }
 
     @GetMapping("/{catId}")

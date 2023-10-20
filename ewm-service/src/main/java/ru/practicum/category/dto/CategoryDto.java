@@ -15,7 +15,7 @@ public class CategoryDto {
 
     private Long id;
 
-    @NotBlank(message = "Имя не может быть пустым")
+    @NotBlank(message = "Name can't be blank")
     @Size(min = 1, max = 50)
     private String name;
 }

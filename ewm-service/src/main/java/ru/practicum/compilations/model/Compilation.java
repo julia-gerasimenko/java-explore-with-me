@@ -18,8 +18,8 @@ import java.util.Set;
 public class Compilation {
 
     @Id
-    @Column(updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long id;
 
     @Column(name = "title", nullable = false)
@@ -27,11 +27,10 @@ public class Compilation {
 
     @Column(nullable = false)
     private Boolean pinned;
-
     @ManyToMany
-    @ToString.Exclude
     @JoinTable(name = "compilation_events", joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
+    @ToString.Exclude
     private Set<Event> events;
 
     @Override

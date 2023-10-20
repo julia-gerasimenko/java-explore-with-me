@@ -9,7 +9,7 @@ public interface CategoryService {
 
     CategoryDto createCategory(NewCategoryDto newCategoryDto);
 
-    List<CategoryDto> getCategories(int from, int size);
+    List<CategoryDto> getCategory(int from, int size);
 
     CategoryDto getCategoryById(Long catId);
 

@@ -25,5 +25,4 @@ public class ParticipationRequestDto {
     private Long requester;
 
     private EventRequestStatus status;
-
 }

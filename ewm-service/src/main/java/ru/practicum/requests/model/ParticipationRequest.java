@@ -6,9 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.util.enam.EventRequestStatus;
 import ru.practicum.events.model.Event;
 import ru.practicum.users.model.User;
-import ru.practicum.util.enam.EventRequestStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,21 +30,21 @@ public class ParticipationRequest {
     @Column(updatable = false, unique = true)
     private Long id;
 
-    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
+    @ToString.Exclude
     private Event event;
 
-    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", updatable = false)
+    @ToString.Exclude
     private User requester;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventRequestStatus status = PENDING;
 
-    @DateTimeFormat(pattern = PATTERN_CREATED_DATE)
     @Column(name = "created_date", updatable = false, nullable = false)
+    @DateTimeFormat(pattern = PATTERN_CREATED_DATE)
     private LocalDateTime created = LocalDateTime.now();
 }

@@ -30,4 +30,5 @@ public class CompilationMapper {
 
         return compilation;
     }
+
 }

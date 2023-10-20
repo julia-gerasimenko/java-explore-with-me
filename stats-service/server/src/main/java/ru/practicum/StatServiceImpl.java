@@ -15,40 +15,39 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class StatServiceImpl implements StatService {
 
     private final StatRepository repository;
 
-
-    @Transactional
     @Override
     public void saveStat(StatsHitDto dto) {
         StatHit statHit = repository.save(StatsHitMapper.statsHitDtoToStatHit(dto));
-        log.info("Сохранена статистика {}", statHit);
+        log.info("Saved statistics {}", statHit);
     }
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (start.isAfter(end)) {
-            log.info("Дата окончания не моет быть раньше даты начала");
-            throw new ValidationException("Дата окончания не моет быть раньше даты начала");
+            log.info("End time can't be before start time");
+            throw new ValidationException("End time can't be before start time");
         }
 
         if (uris.isEmpty()) {
             if (unique) {
-                log.info("Получена статистика, где isUnique {} ", unique);
+                log.info("Got all statistics with isUnique {} ", unique);
                 return repository.getStatsByUniqueIp(start, end);
             } else {
-                log.info("Получена статистика, где isUnique {} ", unique);
+                log.info("Got all statistics with isUnique {} ", unique);
                 return repository.getAllStats(start, end);
             }
         } else {
             if (unique) {
-                log.info("Получена статистика, где isUnique {} и uris {} ", unique, uris);
+                log.info("Got all statistics with isUnique {} when uris {} ", unique, uris);
                 return repository.getStatsByUrisByUniqueIp(start, end, uris);
             } else {
-                log.info("Получена статистика, где isUnique {} и uris {} ", unique, uris);
+                log.info("Got all statistics with isUnique {} when uris {} ", unique, uris);
                 return repository.getAllStatsByUris(start, end, uris);
             }
         }

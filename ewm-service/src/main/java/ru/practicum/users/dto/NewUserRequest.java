@@ -12,11 +12,11 @@ import javax.validation.constraints.Size;
 public class NewUserRequest {
 
     @Email
+    @NotBlank(message = "Email can't be blank")
     @Size(min = 6, max = 254)
-    @NotBlank(message = "Email не может быть пустым")
     private String email;
 
+    @NotBlank(message = "Name can't be blank")
     @Size(min = 2, max = 250)
-    @NotBlank(message = "Имя не может быть пустым")
     private String name;
 }

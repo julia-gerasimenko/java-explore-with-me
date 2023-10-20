@@ -8,58 +8,62 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import ru.practicum.comments.dto.CommentCountDto;
+import ru.practicum.comments.repository.CommentRepository;
+import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.locations.model.Location;
+import ru.practicum.locations.repository.LocationRepository;
+import ru.practicum.requests.model.ParticipationRequest;
+import ru.practicum.requests.repository.RequestRepository;
+import ru.practicum.util.enam.EventRequestStatus;
+import ru.practicum.util.enam.EventState;
+import ru.practicum.util.enam.EventsSort;
+import ru.practicum.util.Pagination;
 import ru.practicum.StatsClient;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.util.enam.EventStateAction;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.model.Event;
-import ru.practicum.events.model.Location;
 import ru.practicum.events.repository.EventRepository;
-import ru.practicum.events.repository.LocationRepository;
 import ru.practicum.handler.NotFoundException;
-import ru.practicum.handler.ValidateDateException;
 import ru.practicum.handler.ValidateException;
+import ru.practicum.handler.ValidateDateException;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
-import ru.practicum.util.Pagination;
-import ru.practicum.util.enam.EventState;
-import ru.practicum.util.enam.EventStateAction;
-import ru.practicum.util.enam.EventsSort;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static ru.practicum.events.dto.EventMapper.mapToEventFullDto;
-import static ru.practicum.events.dto.EventMapper.mapToNewEvent;
-import static ru.practicum.events.dto.LocationMapper.mapToLocation;
-import static ru.practicum.util.Constants.*;
-import static ru.practicum.util.enam.EventState.*;
+import static ru.practicum.events.dto.EventMapper.*;
+import static ru.practicum.events.dto.EventMapper.mapToEventFullDtoWithComments;
+import static ru.practicum.locations.dto.LocationMapper.mapToLocation;
 import static ru.practicum.util.enam.EventsSort.EVENT_DATE;
 import static ru.practicum.util.enam.EventsSort.VIEWS;
+import static ru.practicum.util.Constants.*;
+import static ru.practicum.util.enam.EventState.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 @PropertySource(value = {"classpath:application.properties"})
 public class EventServiceImpl implements EventService {
     @Value("${app}")
-    String app;
+    private String app;
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
     private final StatsClient statsClient;
     private final LocationRepository locationRepository;
+    private final CommentRepository commentRepository;
 
-
-    @Transactional(readOnly = true)
     @Override
     public List<EventFullDto> getAllEventsAdmin(List<Long> users,
                                                 List<EventState> states,
@@ -73,25 +77,25 @@ public class EventServiceImpl implements EventService {
         PageRequest pageable = new Pagination(from, size, Sort.unsorted());
         List<Event> events = eventRepository.findAllForAdmin(users, states, categories, getRangeStart(rangeStart),
                 pageable);
+        confirmedRequestForListEvent(events);
 
-        log.info("получены все события, админ {}", events);
-        return events.stream()
-                .map(EventMapper::mapToEventFullDto)
-                .collect(Collectors.toList());
+        log.info("Got all events in admin {} from {}, size {}", events, from, size);
+        return getEventsFullDtoWithComments(events);
     }
 
-    @Transactional
     @Override
     public EventFullDto updateEventByIdAdmin(Long eventId, EventUpdatedDto eventUpdatedDto) {
         Event event = getEventById(eventId);
         updateEventAdmin(event, eventUpdatedDto);
         event = eventRepository.save(event);
         locationRepository.save(event.getLocation());
-        log.info("Обновлено событие с id = {}, админ ", eventId);
-        return mapToEventFullDto(event);
+
+        Long comments = getComments(eventId);
+        log.info("Updated event with id = {} in admin part", eventId);
+        return mapToEventFullDtoWithComments(event, comments);
     }
 
-    @Transactional
+
     @Override
     public EventFullDto createEventPrivate(Long userId, NewEventDto newEventDto) {
         validateEventDate(newEventDto.getEventDate());
@@ -101,43 +105,46 @@ public class EventServiceImpl implements EventService {
         Location savedLocation = locationRepository
                 .save(mapToLocation(newEventDto.getLocation()));
         Event event = eventRepository.save(mapToNewEvent(newEventDto, savedLocation, user, category));
-        log.info("Пользователь с id = {} создал событие, админ", userId);
+        confirmedRequestsForOneEvent(event);
+        log.info("Event {} was created by User with id = {} in admin part", event, userId);
         return mapToEventFullDto(event);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllEventsByUserIdPrivate(Long userId, int from, int size) {
-        log.info("Получены все события, пользователя с id = {}, приват", userId);
-        return eventRepository.findAllWithInitiatorByInitiatorId(userId, new Pagination(from, size,
-                        Sort.unsorted())).stream()
-                .map(EventMapper::mapToEventShortDto)
-                .collect(Collectors.toList());
+        log.info("Got all events of user with id = {} in private part from {}, size {}", userId, from, size);
+        List<Event> events = eventRepository.findAllWithInitiatorByInitiatorId(userId, new Pagination(from, size,
+                Sort.unsorted()));
+        confirmedRequestForListEvent(events);
+        return getEventShortDtoWithComments(events);
+
     }
 
     @Transactional(readOnly = true)
     @Override
     public EventFullDto getEventByIdPrivate(Long userId, Long eventId) {
         Event event = getEventByIdAndInitiatorId(eventId, userId);
-        log.info("Получено событие с id = {} пользователя с id = {}, приват", eventId, userId);
-        return mapToEventFullDto(event);
+        confirmedRequestsForOneEvent(event);
+        Long comments = getComments(eventId);
+        log.info("Got event with id = {} of user with id = {} in private part", eventId, userId);
+        return mapToEventFullDtoWithComments(event, comments);
     }
 
-    @Transactional
     @Override
     public EventFullDto updateEventByIdPrivate(Long userId, Long eventId, EventUpdatedDto eventUpdatedDto) {
         Event event = getEventByIdAndInitiatorId(eventId, userId);
         if (event.getState() == PUBLISHED || event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidateException("события со статусом CANCELED или PENDING могут быть обновлены");
+            throw new ValidateException("Events with status CANCELED or PENDING can't be updated");
         }
         updateEvent(event, eventUpdatedDto);
         Event eventSaved = eventRepository.save(event);
         locationRepository.save(eventSaved.getLocation());
-        log.info("обновлено событие с id = {} пользователя с id = {}, приват", eventId, userId);
-        return mapToEventFullDto(eventSaved);
+        Long comments = getComments(eventId);
+        log.info("Updated event {} with id = {} of user with id = {} in private part", event, eventId, userId);
+        return mapToEventFullDtoWithComments(eventSaved, comments);
     }
 
-    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsPublic(String text,
                                                List<Long> categories,
                                                Boolean paid,
@@ -172,11 +179,12 @@ public class EventServiceImpl implements EventService {
             events = getEventsBeforeRangeEnd(events, rangeEnd);
         }
 
+        confirmedRequestForListEvent(events);
         List<EventShortDto> result = events.stream()
                 .map(EventMapper::mapToEventShortDto)
                 .collect(Collectors.toList());
 
-        saveViewInEvent(result);
+        saveViewInEvent(result, rangeStart);
         statsClient.saveStats(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
         if (sort.equals(VIEWS)) {
@@ -184,17 +192,20 @@ public class EventServiceImpl implements EventService {
                     .sorted(Comparator.comparingLong(EventShortDto::getViews))
                     .collect(Collectors.toList());
         }
-        log.info("получены все события, содержащие текст {}, категории {}", text, categories);
+
+        log.info("Got all events with text {}, category {}, from {}, size {}", text, categories, from, size);
         return result;
     }
 
     @Override
     public EventFullDto getEventByIdPublic(Long id, HttpServletRequest request) {
         Event event = getEventById(id);
+        confirmedRequestsForOneEvent(event);
         if (!event.getState().equals(PUBLISHED)) {
-            throw new NotFoundException("событие с id = " + id + " не было опубликовано");
+            throw new NotFoundException("Event with id = " + id + " wasn't not published");
         }
-        EventFullDto fullDto = mapToEventFullDto(event);
+        Long comments = getComments(id);
+        EventFullDto fullDto = mapToEventFullDtoWithComments(event, comments);
 
         List<String> uris = List.of("/events/" + event.getId());
         List<ViewStatsDto> views = statsClient.getStats(START_DATE, END_DATE, uris, null).getBody();
@@ -204,27 +215,60 @@ public class EventServiceImpl implements EventService {
         }
         statsClient.saveStats(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
-        log.info("получено событие с id = {}}", id);
+        log.info("Got event with  id = {} in public part}", id);
         return fullDto;
     }
 
-
-    private Category getCategoryForEvent(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("категория с id = " + id + " не была найдена"));
+    private Long getComments(Long eventId) {
+        return commentRepository.countCommentByEventId(eventId);
     }
 
-    private Event getEventById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("событие с id = " + id + " не было найдено"));
+    private List<EventFullDto> getEventsFullDtoWithComments(List<Event> events) {
+        Map<Long, Event> eventsMap = events.stream()
+                .collect(Collectors.toMap(Event::getId, Function.identity()
+                ));
+        Set<Long> eventIds = eventsMap.keySet();
+        Map<Long, Long> commentCounts = commentRepository.findCommentCountByEventIdList(eventIds).stream()
+                .collect(Collectors.toMap(CommentCountDto::getEventId, CommentCountDto::getCount));
+
+        return eventsMap.values().stream()
+                .map(event -> {
+                    long commentCount = commentCounts.getOrDefault(event.getId(), 0L);
+                    return mapToEventFullDtoWithComments(event, commentCount);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<EventShortDto> getEventShortDtoWithComments(List<Event> events) {
+        Map<Long, Event> eventsMap = events.stream()
+                .collect(Collectors.toMap(Event::getId, Function.identity()));
+        Set<Long> eventIds = eventsMap.keySet();
+        Map<Long, Long> commentCounts = commentRepository.findCommentCountByEventIdList(eventIds).stream()
+                .collect(Collectors.toMap(CommentCountDto::getEventId, CommentCountDto::getCount));
+
+        return eventsMap.values().stream()
+                .map(event -> {
+                    long commentCount = commentCounts.getOrDefault(event.getId(), 0L);
+                    return mapToEventShortDtoWithComments(event, commentCount);
+                })
+                .collect(Collectors.toList());
     }
 
     private Event getEventByIdAndInitiatorId(Long eventId, Long userId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("событие с id = " + eventId + " не было найдено"));
+                .orElseThrow(() -> new NotFoundException("Event with id = " + eventId + " wasn't found"));
     }
 
-    @Transactional
+    private Category getCategoryForEvent(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category with id = " + id + " wasn't found"));
+    }
+
+    private Event getEventById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Event with id = " + id + " wasn't found"));
+    }
+
     private void updateEvent(Event event, EventUpdatedDto eventDto) {
         updateEventCommonFields(event, eventDto);
 
@@ -238,7 +282,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    @Transactional
     private void updateEventAdmin(Event event, EventUpdatedDto eventDto) {
         updateEventCommonFields(event, eventDto);
 
@@ -252,7 +295,7 @@ public class EventServiceImpl implements EventService {
                     event.setPublishedOn(LocalDateTime.now());
                 }
             } else {
-                throw new ValidateException("Невозможно отменить или опубликовать событие в связи с его статусом: "
+                throw new ValidateException("Cannot publish or cancel the event because of it's incorrect state: "
                         + event.getState());
             }
         }
@@ -261,12 +304,11 @@ public class EventServiceImpl implements EventService {
             if (eventDto.getEventDate().isAfter(event.getPublishedOn().plusHours(1))) {
                 event.setEventDate(eventDto.getEventDate());
             } else {
-                throw new ValidateDateException("Событие должно длиться как минимум 1 час.");
+                throw new ValidateDateException("The event date should be at least 1 hour after the publication date.");
             }
         }
     }
 
-    @Transactional
     private void updateEventCommonFields(Event event, EventUpdatedDto eventDto) {
         if (eventDto.getAnnotation() != null && !eventDto.getAnnotation().isBlank()) {
             event.setAnnotation(eventDto.getAnnotation());
@@ -302,7 +344,7 @@ public class EventServiceImpl implements EventService {
     private void validDateParam(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeStart != null && rangeEnd != null) {
             if (rangeEnd.isBefore(rangeStart)) {
-                throw new ValidateDateException("Дата старта не может быть позже даты окончания");
+                throw new ValidateDateException("The range start date cannot be after range end date");
             }
         }
     }
@@ -312,21 +354,14 @@ public class EventServiceImpl implements EventService {
         return Long.valueOf(uri[uri.length - 1]);
     }
 
-    private void saveViewInEvent(List<EventShortDto> result) {
+    private void saveViewInEvent(List<EventShortDto> result, LocalDateTime rangeStart) {
         List<String> uris = result.stream()
                 .map(eventShortDto -> "/events/" + eventShortDto.getId())
                 .collect(Collectors.toList());
 
-        List<Long> eventIds = result.stream()
-                .map(EventShortDto::getId)
-                .collect(Collectors.toList());
-
-        Optional<LocalDateTime> start = eventRepository.getStart(eventIds);
-
-        if (start.isPresent()) {
+        if (rangeStart != null) {
             List<ViewStatsDto> views = statsClient.getStats(
-                    start.get().format(DateTimeFormatter.ofPattern(DATE_DEFAULT)), LocalDateTime.now()
-                            .format(DateTimeFormatter.ofPattern(DATE_DEFAULT)),
+                    rangeStart.format(START_DATE_FORMATTER), LocalDateTime.now().format(START_DATE_FORMATTER),
                     uris, true).getBody();
 
             if (views != null) {
@@ -345,7 +380,7 @@ public class EventServiceImpl implements EventService {
     private void validateEventDate(LocalDateTime eventDate) {
 
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidateDateException("Дата события должна быть позже текущего времени");
+            throw new ValidateDateException("Event date should be after current time");
         }
     }
 
@@ -358,5 +393,21 @@ public class EventServiceImpl implements EventService {
 
     private List<Event> getEventsBeforeRangeEnd(List<Event> events, LocalDateTime rangeEnd) {
         return events.stream().filter(event -> event.getEventDate().isBefore(rangeEnd)).collect(Collectors.toList());
+    }
+
+    public void confirmedRequestsForOneEvent(Event event) {
+        event.setConfirmedRequests(requestRepository
+                .countRequestByEventIdAndStatus(event.getId(), EventRequestStatus.CONFIRMED));
+    }
+
+    public void confirmedRequestForListEvent(List<Event> events) {
+        Map<Event, Long> requestsPerEvent = requestRepository.findAllByEventInAndStatus(events, EventRequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.groupingBy(ParticipationRequest::getEvent, Collectors.counting()));
+        if (!requestsPerEvent.isEmpty()) {
+            for (Event event : events) {
+                event.setConfirmedRequests(requestsPerEvent.getOrDefault(event, 0L));
+            }
+        }
     }
 }

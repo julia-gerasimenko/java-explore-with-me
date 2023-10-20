@@ -4,9 +4,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.practicum.util.enam.EventState;
 import ru.practicum.events.model.Event;
 import ru.practicum.util.Pagination;
-import ru.practicum.util.enam.EventState;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -19,9 +19,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByIdIn(Set<Long> events);
 
     Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
-
-    @Query("SELECT MIN(e.publishedOn) FROM Event e WHERE e.id IN :eventsId")
-    Optional<LocalDateTime> getStart(@Param("eventsId") Collection<Long> eventsId);
 
     @Query("SELECT e " +
             "FROM Event AS e " +
@@ -49,7 +46,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     "JOIN FETCH e.initiator i " +
                     "JOIN FETCH e.category c " +
                     "WHERE e.state = :state " +
-                    "AND (e.participantLimit = 0 OR e.participantLimit > e.confirmedRequests) " +
                     "AND (e.category.id IN :categories OR :categories IS NULL) " +
                     "AND e.eventDate > :rangeStart " +
                     "AND (e.paid = :paid OR :paid IS NULL) " +
@@ -66,7 +62,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "JOIN FETCH e.initiator " +
             "JOIN FETCH e.category " +
             "WHERE e.state = :state " +
-            "AND (e.participantLimit = 0 OR e.participantLimit > e.confirmedRequests) " +
             "AND (e.category.id IN :categories OR :categories IS NULL) " +
             "AND e.eventDate > :rangeStart " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
@@ -75,4 +70,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     )
     List<Event> findAllPublishStateNotAvailable(EventState state, LocalDateTime rangeStart, List<Long> categories,
                                                 Boolean paid, String text, Pagination pageable);
+
+    @Query("SELECT MIN(e.publishedOn) FROM Event e WHERE e.id IN :eventsId")
+    Optional<LocalDateTime> getStart(@Param("eventsId") Collection<Long> eventsId);
+
+
 }

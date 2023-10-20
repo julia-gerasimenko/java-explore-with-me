@@ -18,8 +18,8 @@ public class User {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "email", length = 254)
     @EqualsAndHashCode.Include
-    @Column(name = "email", length = 250)
     private String email;
 
     @Column(name = "name", length = 250)

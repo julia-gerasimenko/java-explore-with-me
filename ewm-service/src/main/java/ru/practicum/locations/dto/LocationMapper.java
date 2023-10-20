@@ -1,8 +1,8 @@
-package ru.practicum.events.dto;
+package ru.practicum.locations.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.events.model.Location;
+import ru.practicum.locations.model.Location;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocationMapper {
@@ -15,10 +15,12 @@ public class LocationMapper {
     }
 
     public static LocationDto mapToLocationDto(Location location) {
+        if (location == null) {
+            return null;
+        }
         LocationDto locationDto = new LocationDto();
         locationDto.setLat(location.getLat());
         locationDto.setLon(location.getLon());
         return locationDto;
-
     }
 }

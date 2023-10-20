@@ -20,7 +20,7 @@ public class CompilationAdminController {
     private final CompilationService compilationService;
 
     @PostMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto create(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         return compilationService.createCompilationAdmin(newCompilationDto);
     }
@@ -32,7 +32,7 @@ public class CompilationAdminController {
     }
 
     @DeleteMapping("/{compId}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value = "compId") Long compId) {
         compilationService.deleteCompilationByIdAdmin(compId);
     }

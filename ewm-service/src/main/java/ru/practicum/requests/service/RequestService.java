@@ -17,4 +17,5 @@ public interface RequestService {
 
     EventRequestStatusUpdateResult updateEventRequestStatusPrivate(Long userId, Long eventId,
                                                                    EventRequestStatusUpdateRequest dtoRequest);
+
 }

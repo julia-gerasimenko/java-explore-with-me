@@ -1,4 +1,4 @@
-package ru.practicum.events.model;
+package ru.practicum.locations.model;
 
 
 import lombok.*;
@@ -23,6 +23,5 @@ public class Location {
 
     @Column(name = "lon")
     private Float lon;
-
 }
 

@@ -23,7 +23,7 @@ public class StatController {
     private final StatService service;
 
     @PostMapping("/hit")
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public void saveStatsHit(@RequestBody @Valid StatsHitDto statsHitDto) {
         service.saveStat(statsHitDto);
     }

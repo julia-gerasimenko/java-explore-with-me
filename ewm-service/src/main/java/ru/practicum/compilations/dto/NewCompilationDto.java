@@ -15,11 +15,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class NewCompilationDto {
 
-    @NotBlank(message = "Заголовок не может быть пустым")
+    @NotBlank(message = "Title can't be blank")
     @Size(min = 1, max = 50)
     private String title;
 
     private Boolean pinned;
 
     private Set<Long> events;
+
 }

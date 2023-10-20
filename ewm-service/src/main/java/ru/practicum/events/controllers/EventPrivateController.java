@@ -7,8 +7,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
-import ru.practicum.events.dto.EventUpdatedDto;
 import ru.practicum.events.dto.NewEventDto;
+import ru.practicum.events.dto.EventUpdatedDto;
 import ru.practicum.events.service.EventService;
 import ru.practicum.requests.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResult;
@@ -34,7 +34,7 @@ public class EventPrivateController {
     private final RequestService requestService;
 
     @PostMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@PathVariable(value = "userId") Long userId,
                                @Valid @RequestBody NewEventDto eventDto) {
         return eventService.createEventPrivate(userId, eventDto);
@@ -50,12 +50,6 @@ public class EventPrivateController {
         return eventService.getAllEventsByUserIdPrivate(userId, from, size);
     }
 
-    @GetMapping("/{eventId}/requests")
-    public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId,
-                                                                       @PathVariable(value = "eventId") Long eventId) {
-        return requestService.getParticipationRequestPrivate(userId, eventId);
-    }
-
     @GetMapping("/{eventId}")
     public EventFullDto getEventById(@PathVariable(value = "userId") Long userId,
                                      @PathVariable(value = "eventId") Long eventId) {
@@ -67,6 +61,12 @@ public class EventPrivateController {
                                     @PathVariable(value = "eventId") Long eventId,
                                     @Valid @RequestBody EventUpdatedDto eventDto) {
         return eventService.updateEventByIdPrivate(userId, eventId, eventDto);
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId,
+                                                                       @PathVariable(value = "eventId") Long eventId) {
+        return requestService.getParticipationRequestPrivate(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")

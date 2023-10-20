@@ -5,16 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.compilations.dto.CompilationUpdatedDto;
+import ru.practicum.events.model.Event;
+import ru.practicum.util.Pagination;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.CompilationMapper;
-import ru.practicum.compilations.dto.CompilationUpdatedDto;
 import ru.practicum.compilations.dto.NewCompilationDto;
 import ru.practicum.compilations.model.Compilation;
 import ru.practicum.compilations.repository.CompilationRepository;
-import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.handler.NotFoundException;
-import ru.practicum.util.Pagination;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,18 +22,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDto;
 import static ru.practicum.compilations.dto.CompilationMapper.mapToNewCompilation;
+import static ru.practicum.compilations.dto.CompilationMapper.mapToCompilationDto;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class CompilationServiceImpl implements CompilationService {
+
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
+
     @Override
     public CompilationDto createCompilationAdmin(NewCompilationDto compilationDto) {
         Compilation compilation = mapToNewCompilation(compilationDto);
@@ -55,11 +57,11 @@ public class CompilationServiceImpl implements CompilationService {
         return mapToCompilationDto(savedCompilation);
     }
 
-    @Transactional
+
     @Override
     public CompilationDto updateCompilationByIdAdmin(Long compId, CompilationUpdatedDto dto) {
         Compilation toUpdate = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Компиляция с id %s не найдена.", compId)));
+                new NotFoundException(String.format("Compilation with id = " + compId + " was not found")));
 
         if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
             toUpdate.setTitle(dto.getTitle());
@@ -77,18 +79,18 @@ public class CompilationServiceImpl implements CompilationService {
         return mapToCompilationDto(toUpdate);
     }
 
-    @Transactional
     @Override
     public void deleteCompilationByIdAdmin(Long compId) {
         getCompilation(compId);
-        log.info("Компиляция с id= {} удалена.", compId);
+        log.info("Deleted compilation with id = {} ", compId);
         compilationRepository.deleteById(compId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAllCompilationsPublic(Boolean pinned, Integer from, Integer size) {
-        log.info("Получены все компиляции: pinned = {}, from = {}, size = {}", pinned, from, size);
+        log.info("Got all compilations from {}, size {}", from, size);
+
         if (pinned == null) {
             return compilationRepository.findAll(new Pagination(from, size, Sort.unsorted())).getContent().stream()
                     .map(CompilationMapper::mapToCompilationDto)
@@ -105,13 +107,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationByIdPublic(Long id) {
         Compilation compilation = getCompilation(id);
-        log.info("Компиляция с id = {} получена.", id);
+        log.info("Got compilation with id= {} public", id);
         return mapToCompilationDto(compilation);
     }
 
     @Transactional(readOnly = true)
     private Compilation getCompilation(Long id) {
         return compilationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Компиляция с id = " + id + " не найдена."));
+                .orElseThrow(() -> new NotFoundException("Compilation with id = " + id + " wasn't found"));
     }
 }
