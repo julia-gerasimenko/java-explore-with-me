@@ -33,14 +33,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
         Category category = categoryRepository.save(toCategory(newCategoryDto));
-        log.info("Create category {}", category);
+        log.info("Created category {}", category);
         return toCategoryDto(category);
     }
 
     @Override
     public CategoryDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category with id=" + id + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Category with id = " + id + " does not exist"));
         log.info("Get category with id = {}", id);
         return toCategoryDto(category);
     }
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategoryById(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category with id=" + id + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Category with id = " + id + " does not exist"));
         category.setName(categoryDto.getName());
         log.info("Get category with id = {}", category.getId());
         return toCategoryDto(categoryRepository.save(category));
@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getCategory(int from, int size) {
-        log.info("Get categories");
+        log.info("Get all categories from {}, size {}", from, size);
         return categoryRepository.findAll(new Pagination(from, size, Sort.unsorted())).stream()
                 .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
@@ -67,14 +67,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategoryById(Long id) {
         boolean isExist = categoryRepository.existsById(id);
         if (!isExist) {
-            throw new NotFoundException("Category with id=" + id + " hasn't found");
+            throw new NotFoundException("Category with id = " + id + " does not exist");
         } else {
             try {
                 categoryRepository.deleteById(id);
             } catch (DataIntegrityViolationException e) {
-                throw new NotAvailableException("The category isn't empty");
+                throw new NotAvailableException("The category with id = " + id + " was not deleted");
             }
-            log.info("Delete category with id = {}", id);
+            log.info("Deleted category with id = {}", id);
         }
     }
 

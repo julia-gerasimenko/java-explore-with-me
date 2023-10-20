@@ -37,7 +37,6 @@ public class EventPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@PathVariable(value = "userId") Long userId,
                                @Valid @RequestBody NewEventDto eventDto) {
-        log.info("Create event {} of user with id= {}", eventDto, userId);
         return eventService.createEventPrivate(userId, eventDto);
     }
 
@@ -48,14 +47,12 @@ public class EventPrivateController {
                                                        @PositiveOrZero Integer from,
                                                        @RequestParam(value = "size", defaultValue = PAGE_DEFAULT_SIZE)
                                                        @Positive Integer size) {
-        log.info("Get events of user with id= {}", userId);
         return eventService.getAllEventsByUserIdPrivate(userId, from, size);
     }
 
     @GetMapping("/{eventId}")
     public EventFullDto getEventById(@PathVariable(value = "userId") Long userId,
                                      @PathVariable(value = "eventId") Long eventId) {
-        log.info("Get event with id= {} of user with id= {}", eventId, userId);
         return eventService.getEventByIdPrivate(userId, eventId);
     }
 
@@ -63,14 +60,12 @@ public class EventPrivateController {
     public EventFullDto updateEvent(@PathVariable(value = "userId") Long userId,
                                     @PathVariable(value = "eventId") Long eventId,
                                     @Valid @RequestBody EventUpdatedDto eventDto) {
-        log.info("Updating event {} with id= {} of user with id= {}", eventDto, eventId, userId);
         return eventService.updateEventByIdPrivate(userId, eventId, eventDto);
     }
 
     @GetMapping("/{eventId}/requests")
     public Collection<ParticipationRequestDto> getParticipationRequest(@PathVariable(value = "userId") Long userId,
                                                                        @PathVariable(value = "eventId") Long eventId) {
-        log.info("Get request for event with id= {} for participation for user with id{}", eventId, userId);
         return requestService.getParticipationRequestPrivate(userId, eventId);
     }
 
@@ -78,7 +73,6 @@ public class EventPrivateController {
     public EventRequestStatusUpdateResult updateEventRequestStatus(@PathVariable(value = "userId") Long userId,
                                                                    @PathVariable(value = "eventId") Long eventId,
                                                                    @RequestBody EventRequestStatusUpdateRequest updateRequest) {
-        log.info("Update request for event with id= {} for participation for user with id{}", eventId, userId);
         return requestService.updateEventRequestStatusPrivate(userId, eventId, updateRequest);
     }
 }

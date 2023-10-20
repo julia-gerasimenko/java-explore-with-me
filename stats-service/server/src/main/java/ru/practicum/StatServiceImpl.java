@@ -24,7 +24,7 @@ public class StatServiceImpl implements StatService {
     @Override
     public void saveStat(StatsHitDto dto) {
         StatHit statHit = repository.save(StatsHitMapper.statsHitDtoToStatHit(dto));
-        log.info("Save stat {}", statHit);
+        log.info("Saved statistics {}", statHit);
     }
 
     @Override
@@ -36,18 +36,18 @@ public class StatServiceImpl implements StatService {
 
         if (uris.isEmpty()) {
             if (unique) {
-                log.info("Get all stats with isUnique {} ", unique);
+                log.info("Got all statistics with isUnique {} ", unique);
                 return repository.getStatsByUniqueIp(start, end);
             } else {
-                log.info("Get all stats with isUnique {} ", unique);
+                log.info("Got all statistics with isUnique {} ", unique);
                 return repository.getAllStats(start, end);
             }
         } else {
             if (unique) {
-                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
+                log.info("Got all statistics with isUnique {} when uris {} ", unique, uris);
                 return repository.getStatsByUrisByUniqueIp(start, end, uris);
             } else {
-                log.info("Get all stats with isUnique {} when uris {} ", unique, uris);
+                log.info("Got all statistics with isUnique {} when uris {} ", unique, uris);
                 return repository.getAllStatsByUris(start, end, uris);
             }
         }

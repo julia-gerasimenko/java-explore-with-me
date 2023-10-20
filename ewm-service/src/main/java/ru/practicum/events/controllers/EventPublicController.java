@@ -32,7 +32,6 @@ public class EventPublicController {
     @GetMapping("/{id}")
     public EventFullDto getEventByIdPublic(@PathVariable(value = "id") Long id,
                                            HttpServletRequest request) {
-        log.info("Get event with id= {}", id);
         return eventService.getEventByIdPublic(id, request);
     }
 
@@ -54,9 +53,6 @@ public class EventPublicController {
     ) {
         EventsSort sortParam = EventsSort.from(sort).orElseThrow(() -> new ValidationException("Sort isn't valid: "
                 + sort));
-
-        log.info("Get public events with text {}, categories {} onlyAvailable {}, sort {}", text, categories,
-                onlyAvailable, sort);
         return eventService.getEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sortParam, from, size, request);
     }

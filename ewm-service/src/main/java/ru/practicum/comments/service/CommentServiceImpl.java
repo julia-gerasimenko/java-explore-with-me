@@ -40,19 +40,17 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto createCommentPrivate(Long userId, Long eventId, NewCommentDto newCommentDto) {
         CommentDto commentDto = CommentMapper.mapToComment(newCommentDto);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " hasn't found"));
-
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " hasn't  found."));
+                .orElseThrow(() -> new NotFoundException("User with id = " + userId + " does not exist"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id = " + eventId + " does not exist"));
 
         if (!event.getState().equals(PUBLISHED)) {
-            throw new ValidateException("Event hasn't published yet.");
+            throw new ValidateException("Event with id" + eventId + "wasn't published yet.");
         }
         Comment comment = commentRepository.save(mapToComment(user, event, commentDto));
 
-        log.info("Create comment of user with id= {}", userId);
+        log.info("Created comment {} of user with id = {} for event with id = {}", comment, userId, eventId);
         return mapToCommentDto(comment);
     }
 
@@ -61,30 +59,30 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto updateCommentByIdPrivate(Long userId, Long commentId, NewCommentDto newCommentDto) {
         CommentDto commentDto = CommentMapper.mapToComment(newCommentDto);
         Comment comment = commentRepository.findByIdAndAuthorId(commentId, userId)
-                .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " hasn't found."));
+                .orElseThrow(() -> new NotFoundException("Comment with id = " + commentId + " does not exist"));
 
         comment.setText(commentDto.getText());
         comment.setUpdated(LocalDateTime.now());
 
-        log.info("Update comment of user with id= {}", userId);
+        log.info("Updated comment {} of user with id= {}", comment, userId);
         return mapToCommentDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentDto getCommentByIdPrivate(Long userId, Long commentId) {
         Comment comment = commentRepository.findByIdAndAuthorId(commentId, userId)
-                .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " hasn't found."));
+                .orElseThrow(() -> new NotFoundException("Comment with id = " + commentId + " does not exist"));
 
-        log.info("Get comment by user with id={}", commentId);
+        log.info("Got comment with id {} by user with id={}", commentId, commentId);
         return mapToCommentDto(comment);
     }
 
     @Override
     public List<CommentDto> getCommentsByEventIdPrivate(Long userId, Long eventId, Integer from, Integer size) {
         eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Event with id = " + eventId + " does not exist"));
 
-        log.info("Get comment by user with id={} and event with id = {}", userId, eventId);
+        log.info("Got all comments by user with id={} and event with id = {} from {}, size {}", userId, eventId, from, size);
         return commentRepository.findAllByEventId(eventId, new Pagination(from, size, Sort.unsorted()))
                 .stream()
                 .map(CommentMapper::mapToCommentDto)
@@ -94,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getCommentsByAuthorIdPrivate(Long userId, Integer from, Integer size) {
 
-        log.info("Get comments by user with id={}", userId);
+        log.info("Got all comments by user with id = {}, from {}, size {}", userId, from, size);
         return commentRepository.findAllByAuthorId(userId, new Pagination(from, size, Sort.unsorted()))
                 .stream()
                 .map(CommentMapper::mapToCommentDto)
@@ -105,12 +103,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteCommentByIdPrivate(Long userId, Long commentId) {
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User with id=" + userId + " hasn't found");
+            throw new NotFoundException("User with id = " + userId + " does not exist");
         }
         if (!commentRepository.existsById(commentId)) {
-            throw new NotFoundException("Comment with id=" + commentId + " hasn't found");
+            throw new NotFoundException("Comment with id = " + commentId + " does not exist");
         }
-        log.info("Delete comment with id={} of user with id={}", commentId, userId);
+        log.info("Deleted comment with id = {} of user with id = {}", commentId, userId);
         commentRepository.deleteById(commentId);
 
     }
@@ -118,8 +116,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto getCommentByIdAdmin(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " hasn't  found."));
-        log.info("Get comment with id= {} on admin", commentId);
+                .orElseThrow(() -> new NotFoundException("Comment with id = " + commentId + " does not exist"));
+        log.info("Got comment with id = {} on admin part", commentId);
         return mapToCommentDto(comment);
     }
 
@@ -127,17 +125,17 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto updateCommentAdmin(Long commentId, NewCommentDto newCommentDto) {
         CommentDto commentDto = CommentMapper.mapToComment(newCommentDto);
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " hasn't  found."));
+                .orElseThrow(() -> new NotFoundException("Comment with id = " + commentId + " does not exist"));
         comment.setText(commentDto.getText());
         comment.setUpdated(LocalDateTime.now());
 
-        log.info("Update comment {} with  id={} on admin part", commentDto, commentId);
+        log.info("Updated comment {} with  id={} on admin part", commentDto, commentId);
         return mapToCommentDto(commentRepository.save(comment));
     }
 
     @Override
     public List<CommentDto> getCommentsPublic(Long eventId, String text, Integer from, Integer size) {
-        log.info("Get comment for event with text= {}", text);
+        log.info("Got comment for event with id = {} with text = {} from {}, size {}", eventId, text, from, size);
 
         return commentRepository.findAllEventIdAndByText(eventId, text, new Pagination(from, size, Sort.unsorted())).stream()
                 .map(CommentMapper::mapToCommentDto)
@@ -147,9 +145,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteCommentByIdAdmin(Long commentId) {
         if (!commentRepository.existsById(commentId)) {
-            throw new NotFoundException("Comment with id=" + commentId + " hasn't found");
+            throw new NotFoundException("Comment with id = " + commentId + " does not exist");
         }
         commentRepository.deleteById(commentId);
-        log.info("Delete comment with id=c{} on admin part", commentId);
+        log.info("Deleted comment with id = {} on admin part", commentId);
     }
 }

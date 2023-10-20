@@ -79,7 +79,7 @@ public class EventServiceImpl implements EventService {
                 pageable);
         confirmedRequestForListEvent(events);
 
-        log.info("Get all events in admin {}", events);
+        log.info("Got all events in admin {} from {}, size {}", events, from, size);
         return getEventsFullDtoWithComments(events);
     }
 
@@ -91,7 +91,7 @@ public class EventServiceImpl implements EventService {
         locationRepository.save(event.getLocation());
 
         Long comments = getComments(eventId);
-        log.info("Update event with id= {} in admin ", eventId);
+        log.info("Updated event with id = {} in admin part", eventId);
         return mapToEventFullDtoWithComments(event, comments);
     }
 
@@ -106,14 +106,14 @@ public class EventServiceImpl implements EventService {
                 .save(mapToLocation(newEventDto.getLocation()));
         Event event = eventRepository.save(mapToNewEvent(newEventDto, savedLocation, user, category));
         confirmedRequestsForOneEvent(event);
-        log.info("User id= {} create event in admin", userId);
+        log.info("Event {} was created by User with id = {} in admin part", event, userId);
         return mapToEventFullDto(event);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllEventsByUserIdPrivate(Long userId, int from, int size) {
-        log.info("Get all events of user with id= {} in private", userId);
+        log.info("Got all events of user with id = {} in private part from {}, size {}", userId, from, size);
         List<Event> events = eventRepository.findAllWithInitiatorByInitiatorId(userId, new Pagination(from, size,
                 Sort.unsorted()));
         confirmedRequestForListEvent(events);
@@ -127,7 +127,7 @@ public class EventServiceImpl implements EventService {
         Event event = getEventByIdAndInitiatorId(eventId, userId);
         confirmedRequestsForOneEvent(event);
         Long comments = getComments(eventId);
-        log.info("Get event with id={} of user with id= {} in private", eventId, userId);
+        log.info("Got event with id = {} of user with id = {} in private part", eventId, userId);
         return mapToEventFullDtoWithComments(event, comments);
     }
 
@@ -135,13 +135,13 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventByIdPrivate(Long userId, Long eventId, EventUpdatedDto eventUpdatedDto) {
         Event event = getEventByIdAndInitiatorId(eventId, userId);
         if (event.getState() == PUBLISHED || event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidateException("Events with CANCELED or PENDING can be updated");
+            throw new ValidateException("Events with status CANCELED or PENDING can't be updated");
         }
         updateEvent(event, eventUpdatedDto);
         Event eventSaved = eventRepository.save(event);
         locationRepository.save(eventSaved.getLocation());
         Long comments = getComments(eventId);
-        log.info("Update event with id={} of user with id= {} in private", eventId, userId);
+        log.info("Updated event {} with id = {} of user with id = {} in private part", event, eventId, userId);
         return mapToEventFullDtoWithComments(eventSaved, comments);
     }
 
@@ -193,7 +193,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        log.info("Get all event with text {}, category {}", text, categories);
+        log.info("Got all events with text {}, category {}, from {}, size {}", text, categories, from, size);
         return result;
     }
 
@@ -202,7 +202,7 @@ public class EventServiceImpl implements EventService {
         Event event = getEventById(id);
         confirmedRequestsForOneEvent(event);
         if (!event.getState().equals(PUBLISHED)) {
-            throw new NotFoundException("Event with id=" + id + " hasn't not published");
+            throw new NotFoundException("Event with id = " + id + " wasn't not published");
         }
         Long comments = getComments(id);
         EventFullDto fullDto = mapToEventFullDtoWithComments(event, comments);
@@ -215,7 +215,7 @@ public class EventServiceImpl implements EventService {
         }
         statsClient.saveStats(app, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
-        log.info("Get event with  id = {}}", id);
+        log.info("Got event with  id = {} in public part}", id);
         return fullDto;
     }
 
@@ -254,19 +254,19 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    private Event getEventByIdAndInitiatorId(Long eventId, Long userId) {
+        return eventRepository.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException("Event with id = " + eventId + " wasn't found"));
+    }
+
     private Category getCategoryForEvent(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category with id=" + id + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Category with id = " + id + " wasn't found"));
     }
 
     private Event getEventById(Long id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " hasn't found"));
-    }
-
-    private Event getEventByIdAndInitiatorId(Long eventId, Long userId) {
-        return eventRepository.findByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Event with id = " + id + " wasn't found"));
     }
 
     private void updateEvent(Event event, EventUpdatedDto eventDto) {
@@ -295,7 +295,7 @@ public class EventServiceImpl implements EventService {
                     event.setPublishedOn(LocalDateTime.now());
                 }
             } else {
-                throw new ValidateException("Cannot publish or cancel the event because it's not in the right state: "
+                throw new ValidateException("Cannot publish or cancel the event because of it's incorrect state: "
                         + event.getState());
             }
         }
@@ -304,7 +304,7 @@ public class EventServiceImpl implements EventService {
             if (eventDto.getEventDate().isAfter(event.getPublishedOn().plusHours(1))) {
                 event.setEventDate(eventDto.getEventDate());
             } else {
-                throw new ValidateDateException("The event date must be at least 1 hour after the published date.");
+                throw new ValidateDateException("The event date should be at least 1 hour after the publication date.");
             }
         }
     }
@@ -344,7 +344,7 @@ public class EventServiceImpl implements EventService {
     private void validDateParam(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeStart != null && rangeEnd != null) {
             if (rangeEnd.isBefore(rangeStart)) {
-                throw new ValidateDateException("The range start date cannot be is after range end date");
+                throw new ValidateDateException("The range start date cannot be after range end date");
             }
         }
     }
@@ -380,7 +380,7 @@ public class EventServiceImpl implements EventService {
     private void validateEventDate(LocalDateTime eventDate) {
 
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidateDateException("Event date should be after now");
+            throw new ValidateDateException("Event date should be after current time");
         }
     }
 
@@ -410,5 +410,4 @@ public class EventServiceImpl implements EventService {
             }
         }
     }
-
 }

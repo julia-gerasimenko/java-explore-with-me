@@ -61,7 +61,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto updateCompilationByIdAdmin(Long compId, CompilationUpdatedDto dto) {
         Compilation toUpdate = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Compilation %s not found", compId)));
+                new NotFoundException(String.format("Compilation with id = " + compId + " was not found")));
 
         if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
             toUpdate.setTitle(dto.getTitle());
@@ -82,14 +82,15 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void deleteCompilationByIdAdmin(Long compId) {
         getCompilation(compId);
-        log.info("Delete compilation with id= {} ", compId);
+        log.info("Deleted compilation with id = {} ", compId);
         compilationRepository.deleteById(compId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAllCompilationsPublic(Boolean pinned, Integer from, Integer size) {
-        log.info("Get all compilations");
+        log.info("Got all compilations from {}, size {}", from, size);
+
         if (pinned == null) {
             return compilationRepository.findAll(new Pagination(from, size, Sort.unsorted())).getContent().stream()
                     .map(CompilationMapper::mapToCompilationDto)
@@ -106,13 +107,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationByIdPublic(Long id) {
         Compilation compilation = getCompilation(id);
-        log.info("Get compilation with id= {} ", id);
+        log.info("Got compilation with id= {} public", id);
         return mapToCompilationDto(compilation);
     }
 
     @Transactional(readOnly = true)
     private Compilation getCompilation(Long id) {
         return compilationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + id + " hasn't found"));
+                .orElseThrow(() -> new NotFoundException("Compilation with id = " + id + " wasn't found"));
     }
 }

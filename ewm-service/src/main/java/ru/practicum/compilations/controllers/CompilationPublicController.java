@@ -25,7 +25,6 @@ public class CompilationPublicController {
 
     @GetMapping("/{compId}")
     public CompilationDto getByIdPublic(@PathVariable Long compId) {
-        log.info("Get compilation with id= {}", compId);
         return serviceCompilation.getCompilationByIdPublic(compId);
     }
 
@@ -35,7 +34,6 @@ public class CompilationPublicController {
                                           @PositiveOrZero Integer from,
                                           @RequestParam(defaultValue = PAGE_DEFAULT_SIZE)
                                           @Positive Integer size) {
-        log.info("Get compilations pinned {}", pinned);
         return serviceCompilation.getAllCompilationsPublic(pinned, from, size);
     }
 

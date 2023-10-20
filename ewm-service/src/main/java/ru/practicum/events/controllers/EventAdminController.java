@@ -40,14 +40,12 @@ public class EventAdminController {
                                               @PositiveOrZero Integer from,
                                               @RequestParam(defaultValue = PAGE_DEFAULT_SIZE)
                                               @Positive Integer size) {
-        log.info("Get events of users {} with states {}, categories {}", users, states, categories);
         return eventService.getAllEventsAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventAdmin(@PathVariable(value = "eventId") Long eventId,
                                          @Valid @RequestBody EventUpdatedDto eventDto) {
-        log.info("Update event {} with id= {}", eventDto, eventId);
         return eventService.updateEventByIdAdmin(eventId, eventDto);
     }
 }
